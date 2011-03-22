@@ -1,0 +1,102 @@
+/* clear all*/ 
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, font, img, ins, kbd, q, s, samp,
+small, strike, sub, sup, tt, var,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td {
+
+
+	margin: 0;
+	padding: 0;
+	border: 0;
+	outline: 0;
+	font-weight: inherit;
+	font-style: inherit;
+	font-size: 100%;
+	font-family: inherit;
+	vertical-align: baseline; }
+	
+body { margin: 0 10px 10px 10px; background: #262621; font-family: Verdana; font-size: 90%; }
+
+#peeper { color: #FFFFFF; left: 20px; position: absolute; text-transform: uppercase; top: 8px; z-index: 1000;}
+	#peeper .peeper { color: #E6006B; font-weight: bold; }	
+	#peeper .ko3 { color: #AADA5F; font-weight: bold; }
+
+#toolbar { margin: 10px 0px; text-align: right; }
+	#peeper-stop { cursor: pointer; background: #71811C; border-radius: 6px 6px 6px 6px; color: #DCE7C2; font-size: 70%; padding: 2px 4px; text-transform: uppercase; }
+
+.request { background: #fff; border-radius: 8px; margin-top: 10px; }
+	.request-title { cursor: pointer; font-size: 70%; margin-bottom: 0; color: #19480D; font-weight: normal; background: #AFD36F; border: 3px solid #83C151; border-radius: 8px 8px 8px 8px; padding: 2px 4px; }
+	.request:nth-child(2n) .request-title { background: #C4DC92; }
+	.request.ajax .request-title { background: #91C1DE; border-color: #497EBE; }
+	.request.ajax:nth-child(2n) .request-title { background: #7AB1D3; }
+		.request-title .ajax { background: #fff; border-radius: 4px; padding: 2px; font-size: 90%; text-transform: uppercase; color: #000; }
+	.request.error .request-title { color: #F5F2F4; background: #CF4686 !important; border-color: #B01E53; }
+	.request-items { display: none; padding: 5px; }
+		.request-item {}
+			.item-container { background: #CFE1F4; }
+				.item-header {cursor: pointer; border-bottom: 1px solid #99BBD0; margin-bottom: 0; color: #084E73; font-size: 60%; font-weight: normal; letter-spacing: 2px; margin-top: 0; padding: 5px; text-transform: uppercase; }							
+				.item-items { padding: 0 5px 5px 5px; background: #E6EFF5; border-top: 1px solid #F4F8FB; }
+					
+					table { width: 100%; border-collapse: collapse; }
+					th, td { text-align: left; font-size: 70%; padding: 4px 4px; }
+					tr.table-header { background: #8DBFD6; }
+					table.stripes tr:nth-child(2n) { background: #F0F5F9; }
+					
+					#kohana-profiler table.profiler { margin-top: 5px; }								
+						#kohana-profiler .group th { font-size: 70%; padding: 4px; }
+						#kohana-profiler .group td { text-align: right; }
+							#kohana-profiler .group .time,
+							#kohana-profiler .group .memory { font-size: 80%; background: #D6E9F4; border-radius: 4px; margin-right: 5px; padding: 2px 4px; }
+						#kohana-profiler .headers { background: #CCD9E0; }
+							#kohana-profiler .headers th.min { background: #B3D282; }
+							#kohana-profiler .headers th.max { background: #D9949D; }
+							#kohana-profiler .headers th.name { width: 40%; }
+							#kohana-profiler .headers th.average { background: #D6D163; }
+							#kohana-profiler .headers th.total {}
+						#kohana-profiler .mark {  }										
+							#kohana-profiler .mark td.min { background: #CBE3A6; }
+							#kohana-profiler .mark td.max { background: #E8BCC2; }
+							#kohana-profiler .mark th.name { width: 40%; font-weight: normal; border-bottom: 1px solid #B8CFE6; }
+							#kohana-profiler .mark td.average { background: #E8E589; }
+							#kohana-profiler .mark td.total {  }
+							
+							#kohana-profiler .mark.memory td.min { border-bottom: 1px solid #B3D282; }
+							#kohana-profiler .mark.memory td.max { border-bottom: 1px solid #D9949D; }
+							#kohana-profiler .mark.memory td.average { border-bottom: 1px solid #D6D163; }
+							#kohana-profiler .mark.memory td.total { border-bottom: 1px solid #B8CFE6; }
+					
+					#debug th { width: 20%; }
+					
+					#globals table { margin-top: 10px; }
+					
+					.ajax-response .application-json,
+					.ajax-response .text-html { width: 40%; }									
+					.ajax-response .application-json + td,
+					.ajax-response .text-html + td { width: 60%; }
+					
+					.json-tree ul,
+					.xml-tree ul { list-style: none; }
+						.json-tree ul ul,
+						.xml-tree ul ul { padding-left: 20px; display: none; }
+							.json-tree .key { font-weight: bold; padding-right: 10px; }
+							.json-tree a.key code { color: #000; } 
+							.json-tree pre.value { display: inline; }
+							
+							.json-tree .string { color: #8C6600; }
+							.json-tree .expand,
+							.xml-tree .expand { margin-right: 3px; cursor: pointer; }
+							.json-tree .key pre.number { font-weight: bold; color: #497EBE; }
+							
+					.xml-tree .tag-name { color: #1C5BB3; }
+					.xml-tree .attr-name { color: #000; }
+					.xml-tree .attr-value { color: #DD3D3D; }
+					
+					.test-query { cursor: pointer; text-decoration: none; color: #000; letter-spacing: 1px; background: #fff; border-radius: 6px; padding: 2px 4px; right: 4px; text-transform: uppercase; font-size: 80%; margin-right: 5px; }
+					.test-query:hover { background: #7AB1D3; color: #fff; }
+						.test-query span { display: none; }
+						
+					.db-result th { font-size: 70%; padding: 4px; text-align: left; background: #CCD9E0; }
