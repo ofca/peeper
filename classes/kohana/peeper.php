@@ -442,3 +442,16 @@ class Kohana_Peeper {
 	}
 	
 } // eo Peeper
+
+/**
+ * Shortcut function to [Peeper::log]
+ * 
+ * @param	mixed
+ * @param	string
+ * @param	integer
+ * @return	void
+ */
+function peep($var, $label = NULL, $length = 1024)
+{
+	return Peeper::log($var, $label, $length);
+} // eo peep
