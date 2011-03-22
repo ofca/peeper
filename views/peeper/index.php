@@ -1,6 +1,12 @@
+<!DOCTYPE html>
 <html>
 	<head>
+		<title>KO3 PEEPER</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link REL="SHORTCUT ICON" HREF="<?php echo Route::get('peeper/media')->uri(array('file' => 'images/favicon.ico')) ?>">
+		
 		<script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js'></script>
+		
 		<?php foreach ($styles as $style => $media) echo HTML::style($style, array('media' => $media), NULL, TRUE), "\n" ?>
 		<?php foreach ($scripts as $script) echo HTML::script($script, NULL, NULL, TRUE), "\n" ?>
 					
