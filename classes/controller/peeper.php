@@ -47,68 +47,103 @@ class Controller_Peeper extends Controller {
 		
 		$dir = APPPATH.'cache/peeper/'.$_SERVER['REMOTE_ADDR'].'/';
 		
-		// 10 seconds
+		// 30 seconds
 		while($timeout < 30) 
 		{
-			/*if (connection_aborted())
+			// there're no any logs
+			if ( ! is_dir($dir))
 			{
-				exit;
-			}*/
+				goto next;
+			}
+			
+			$array = array();
+			// archive logs
+			$old = array();
+			
+			// clear file status cache
 			clearstatcache();
 			
-			$files = scandir($dir);
-			$array = array();
-
-			foreach ($files as $file)
-			{ 
-				if ($file == '.' OR $file == '..' OR $file[0] == '.' OR $file[0] == '_')
-				{
-					continue;
-				}
-				
-				$array[] = $file;
-			}
-
-			if ( ! empty($array))
-			{
-				arsort($array, SORT_NUMERIC);
-				
-				$directory = $array[0];
-				$path = $dir.$directory.'/';
-				$array = array();
-				
-				if ($directory == time())
-				{
-					sleep(1);	
-				}
-				
-				$files = scandir($path);
-				
+			// get all directories
+			if ($files = scandir($dir))
+			{	
 				foreach ($files as $file)
-				{
+				{ 
 					if ($file == '.' OR $file == '..')
 					{
 						continue;
 					}
 					
-					$array[] = ltrim($file, '.');
+					(int) $file;
+					
+					// all directories older then 10 minut, will be deleted
+					if (time() - 600 > $file)
+					{
+						$old[] = $dir.$file;	
+					}
+					else
+					{
+						$array[] = $file;
+					}
+				}
+			}
+			
+			// remove old dirs
+			if ($old)
+			{
+				array_map(array($this, '_remove_dir'), $old);
+			}
+			
+			if ($array)
+			{
+				// sort directories 
+				arsort($array, SORT_NUMERIC);
+				
+				// first directory will be the oldest
+				$directory = $array[0];
+				$path = $dir.$directory.'/';
+				// clear array
+				$array = array();
+				
+				// in the directory may show up new logs
+				if ($directory == time())
+				{
+					sleep(1);	
 				}
 				
-				if ( ! empty($array))
+				// get all logs
+				if ($files = scandir($path))
+				{	
+					foreach ($files as $file)
+					{
+						if ($file == '.' OR $file == '..')
+						{
+							continue;
+						}
+						
+						$array[] = (float) $file;
+					}
+				}
+				
+				if ($array)
 				{
 					arsort($array, SORT_NUMERIC);
 					
 					foreach ($array as $file)
 					{
-						$files_content[] = unserialize(file_get_contents($path.'.'.$file));
+						$files_content[] = unserialize(file_get_contents($path.$file));
+						
+						// delete this file
+						unlink($path.$file);
 					}
 					
-					rename($dir.$directory, $dir.'_'.$directory);	
+					// remove directory
+					rmdir($dir.$directory);	
+					
 					return $this->render($files_content);
 				}
 				else
-				{
-					rename($dir.$directory, $dir.'_'.$directory);	
+				{	
+					rmdir($dir.$directory);	
 				}
 			}
 			
@@ -255,5 +290,37 @@ class Controller_Peeper extends Controller {
 			$this->response->status(404);
 		}
 	}
+	
+	/**
+	 * Delete directory recursively.
+	 * 
+	 * @author	holger1 at NOSPAMzentralplan dot de
+	 * @see		http://www.php.net/manual/en/function.rmdir.php#98622
+	 */
+	protected function _remove_dir($dir)
+	{
+		if (is_dir($dir)) 
+		{ 
+			$objects = scandir($dir); 
+			
+			foreach ($objects as $object) 
+			{ 
+				if ($object != "." && $object != "..") 
+				{ 
+					if (filetype($dir."/".$object) == "dir")
+					{
+						$this->_remove_dir($dir."/".$object); 
+					}
+					else
+					{
+						 unlink($dir."/".$object);
+					} 
+				} 
+			} 
+     
+			reset($objects); 
+			rmdir($dir); 
+		} 
+	} // eo _rrmdir
 } // eo Controller_Peeper
 	

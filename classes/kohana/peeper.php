@@ -38,8 +38,6 @@ class Kohana_Peeper {
 			return;
 		}
 		
-		
-		
 		// request start
 		Peeper::$start = microtime();
 		
@@ -50,19 +48,7 @@ class Kohana_Peeper {
 		
 		Peeper::$_init = TRUE;
 	} // eo init
-	
-	public static function create_cache_dir()
-	{
-		if ( ! is_dir(Peeper::$cache_dir))
-		{
-			// Create the cache directory
-			mkdir(Peeper::$cache_dir, 0777, TRUE);
-
-			// Set permissions (must be manually set to fix umask issues)
-			chmod(Peeper::$cache_dir, 0777);
-		}
-	}
-	
+			
 	/**
 	 * See [Debug::dump].
 	 * 
@@ -332,16 +318,8 @@ class Kohana_Peeper {
 		try
 		{
 			list($msec, $sec) = explode(' ', Peeper::$start);
-			
-			/*$fp = fopen($path.'index', "a+");
-			if (flock($fp, LOCK_EX))
-			{
-				fwrite($fp, Peeper::$start."\n");
-				flock($fp, LOCK_UN);
-				fclose($fp);
-			}*/
-			
-			file_put_contents(Peeper::$cache_dir.'.'.$msec, serialize($output), LOCK_EX);
+						
+			file_put_contents(Peeper::$cache_dir.(string)(float)$msec, serialize($output), LOCK_EX);
 		}
 		catch (Exception $e)
 		{
@@ -427,22 +405,13 @@ class Kohana_Peeper {
 		$output['ajax_response'] = $contents;
 		$output['ajax_response_type'] = 'text/plain';
 				
-		//$path = Peeper::_create_dir();
 		Peeper::create_cache_dir();
 		
 		try
 		{
 			list($msec, $sec) = explode(' ', Peeper::$start);
-			
-			/*$fp = fopen($path.'index', "a+");
-			if (flock($fp, LOCK_EX))
-			{
-				fwrite($fp, Peeper::$start."\n");
-				flock($fp, LOCK_UN);
-				fclose($fp);
-			}*/
-			
-			file_put_contents(Peeper::$cache_dir.'.'.$msec, serialize($output), LOCK_EX);
+						
+			file_put_contents(Peeper::$cache_dir.$msec, serialize($output), LOCK_EX);
 		}
 		catch (Exception $e)
 		{
@@ -450,29 +419,16 @@ class Kohana_Peeper {
 		}
 	}
 	
-	protected static function _create_dir()
+	public static function create_cache_dir()
 	{
-		$path = APPPATH.'cache/';
-		
-		// user unique id
-		$uid = md5(Request::$user_agent.Request::$client_ip);
-				
-		// create dirs if not exists
-		foreach (array('peeper', $uid) as $dir)
+		if ( ! is_dir(Peeper::$cache_dir))
 		{
-			$path .= $dir.'/';
-			
-			if ( ! is_dir($path))
-			{
-				// Create the cache directory
-				mkdir($path, 0777, TRUE);
-	
-				// Set permissions (must be manually set to fix umask issues)
-				chmod($path, 0777);
-			}
-		}	
-		
-		return $path;
+			// Create the cache directory
+			mkdir(Peeper::$cache_dir, 0777, TRUE);
+
+			// Set permissions (must be manually set to fix umask issues)
+			chmod(Peeper::$cache_dir, 0777);
+		}
 	}
 	
 } // eo Peeper
