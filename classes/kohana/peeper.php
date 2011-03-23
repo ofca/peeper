@@ -294,7 +294,7 @@ class Kohana_Peeper {
 		}
 		
 		// make delay
-		$delay = rand(5, 50);
+		$delay = rand(50, 150);
 		usleep($delay);
 		
 		// collect data

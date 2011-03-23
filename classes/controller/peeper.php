@@ -195,7 +195,7 @@ class Controller_Peeper extends Controller {
 				$error = TRUE;
 			}
 			
-			$view = View::factory('peeper/request', array('title' => $title, 'ajax_request' => $ajax, 'error' => $error));
+			$view = View::factory('peeper/request', array('title' => $title, 'ajax_request' => $ajax, 'error' => $error, 'globals' => $item['globals']));
 			
 			$view->items = array();
 			

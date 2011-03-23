@@ -6,6 +6,10 @@
 		<?php endif ?>
 		
 		<?php echo $title ?>
+		
+		<?php if ($ajax_request AND ! empty($title)): ?>
+			<a class='test-request' href='javascript:void(0);' title='Test request'>test</a>
+		<?php endif; ?>
 	</h1>
 	
 	<div class='request-items'>
@@ -14,28 +18,11 @@
 	
 </div>
 
-<script type='text/javascript'>
-	var $request = $('#<?php echo $id ?>');
-	
-	$('.request-title', $request).toggle(
-		function(){
-			$(this).next().slideDown();
-		},
-		function(){
-			$(this).next().slideUp();
-		}
-	);
-	
-	$('.item-header', $request).click(function(){
-		
-		var $next = $(this).next();
-		
-		if ($next.css('display') == 'none'){
-			$next.slideDown();
-		} else {
-			$next.slideUp();
-		}
-		
+<script type='text/javascript'>	
+	Peeper.addRequest('<?php echo $id ?>', {
+		url: '<?php echo $title ?>',
+		ajax: <?php echo $ajax_request ? 'true' : 'false' ?>,
+		post: <?php echo json_encode($globals['_POST']) ?>,
+		get: <?php echo json_encode($globals['_GET']) ?>,
 	});
-	
 </script>
