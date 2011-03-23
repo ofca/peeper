@@ -394,6 +394,7 @@ class Kohana_Peeper {
 
 			// Display the contents of the output buffer
 			$contents = ob_get_contents();
+			ob_clean();
 		}
 		catch (Exception $e)
 		{
