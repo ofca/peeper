@@ -411,7 +411,7 @@ class Kohana_Peeper {
 		{
 			list($msec, $sec) = explode(' ', Peeper::$start);
 						
-			file_put_contents(Peeper::$cache_dir.$msec, serialize($output), LOCK_EX);
+			file_put_contents(Peeper::$cache_dir.(string)(float)$msec, serialize($output), LOCK_EX);
 		}
 		catch (Exception $e)
 		{
