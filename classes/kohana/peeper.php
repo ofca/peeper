@@ -24,6 +24,8 @@ class Kohana_Peeper {
 	 */
 	public static $debug = array();
 	
+	public static $cache_dir = '';
+	
 	/**
 	 * Initialize Peeper (register shutdown handler).
 	 * 
@@ -39,12 +41,14 @@ class Kohana_Peeper {
 		// request start
 		Peeper::$start = microtime();
 		
+		Peeper::$cache_dir = APPPATH.'cache/peeper/'.$_SERVER['REMOTE_ADDR'].'/'.time().'/';
+				
 		// register Peeper shutdown handler
 		register_shutdown_function(array('Peeper', 'shutdown_handler'));
 		
 		Peeper::$_init = TRUE;
 	} // eo init
-	
+			
 	/**
 	 * See [Debug::dump].
 	 * 
@@ -286,6 +290,7 @@ class Kohana_Peeper {
 	public static function shutdown_handler()
 	{
 		$config = Kohana::config('peeper');
+		
 		 
 		// Do not execute when not active or when it is request to Peeper controller
 		if ( ! Peeper::$_init OR in_array(Request::$initial->controller(), $config['excluded_controllers']))
@@ -307,19 +312,14 @@ class Kohana_Peeper {
 			Peeper::get_included_files() +
 			Peeper::get_loaded_extensions();
 		
-		$path = Peeper::_create_dir();
+		//$path = Peeper::_create_dir();
+		Peeper::create_cache_dir();
 		
 		try
-		{	
-			$fp = fopen($path.'index', "a+");
-			if (flock($fp, LOCK_EX))
-			{
-				fwrite($fp, Peeper::$start."\n");
-				flock($fp, LOCK_UN);
-				fclose($fp);
-			}
-			
-			file_put_contents($path.Peeper::$start, serialize($output), LOCK_EX);
+		{
+			list($msec, $sec) = explode(' ', Peeper::$start);
+						
+			file_put_contents(Peeper::$cache_dir.(string)(float)$msec, serialize($output), LOCK_EX);
 		}
 		catch (Exception $e)
 		{
@@ -405,11 +405,13 @@ class Kohana_Peeper {
 		$output['ajax_response'] = $contents;
 		$output['ajax_response_type'] = 'text/plain';
 				
-		$path = Peeper::_create_dir();
+		Peeper::create_cache_dir();
 		
 		try
-		{			
-			file_put_contents($path.Peeper::$start, serialize($output), LOCK_EX);
+		{
+			list($msec, $sec) = explode(' ', Peeper::$start);
+						
+			file_put_contents(Peeper::$cache_dir.(string)(float)$msec, serialize($output), LOCK_EX);
 		}
 		catch (Exception $e)
 		{
@@ -417,29 +419,16 @@ class Kohana_Peeper {
 		}
 	}
 	
-	protected static function _create_dir()
+	public static function create_cache_dir()
 	{
-		$path = APPPATH.'cache/';
-		
-		// user unique id
-		$uid = md5(Request::$user_agent.Request::$client_ip);
-				
-		// create dirs if not exists
-		foreach (array('peeper', $uid) as $dir)
+		if ( ! is_dir(Peeper::$cache_dir))
 		{
-			$path .= $dir.'/';
-			
-			if ( ! is_dir($path))
-			{
-				// Create the cache directory
-				mkdir($path, 0777, TRUE);
-	
-				// Set permissions (must be manually set to fix umask issues)
-				chmod($path, 0777);
-			}
-		}	
-		
-		return $path;
+			// Create the cache directory
+			mkdir(Peeper::$cache_dir, 0777, TRUE);
+
+			// Set permissions (must be manually set to fix umask issues)
+			chmod(Peeper::$cache_dir, 0777);
+		}
 	}
 	
 } // eo Peeper
