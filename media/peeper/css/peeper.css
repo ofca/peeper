@@ -29,7 +29,7 @@ body { margin: 0 10px 10px 10px; background: #262621; font-family: Verdana; font
 	#peeper-stop { cursor: pointer; background: #71811C; border-radius: 6px 6px 6px 6px; color: #DCE7C2; font-size: 70%; padding: 2px 4px; text-transform: uppercase; }
 
 .request { background: #fff; border-radius: 8px; margin-top: 10px; }
-	.request-title { cursor: pointer; font-size: 70%; margin-bottom: 0; color: #19480D; font-weight: normal; background: #AFD36F; border: 3px solid #83C151; border-radius: 8px 8px 8px 8px; padding: 2px 4px; }
+	.request-title { position: relative; cursor: pointer; font-size: 70%; margin-bottom: 0; color: #19480D; font-weight: normal; background: #AFD36F; border: 3px solid #83C151; border-radius: 8px 8px 8px 8px; padding: 2px 4px; }
 	.request:nth-child(2n) .request-title { background: #C4DC92; }
 	.request.ajax .request-title { background: #91C1DE; border-color: #497EBE; }
 	.request.ajax:nth-child(2n) .request-title { background: #7AB1D3; }
@@ -94,9 +94,16 @@ body { margin: 0 10px 10px 10px; background: #262621; font-family: Verdana; font
 					.xml-tree .tag-name { color: #1C5BB3; }
 					.xml-tree .attr-name { color: #000; }
 					.xml-tree .attr-value { color: #DD3D3D; }
-					
-					.test-query { cursor: pointer; text-decoration: none; color: #000; letter-spacing: 1px; background: #fff; border-radius: 6px; padding: 2px 4px; right: 4px; text-transform: uppercase; font-size: 80%; margin-right: 5px; }
-					.test-query:hover { background: #7AB1D3; color: #fff; }
-						.test-query span { display: none; }
+
+/* test query button displayed next to database queries */					
+.test-query { cursor: pointer; text-decoration: none; color: #000; letter-spacing: 1px; background: #fff; border-radius: 6px; padding: 2px 4px; right: 4px; text-transform: uppercase; font-size: 80%; margin-right: 5px; }
+.test-query:hover { background: #7AB1D3; color: #fff; }
+	.test-query span { display: none; }
 						
 					.db-result th { font-size: 70%; padding: 4px; text-align: left; background: #CCD9E0; }
+					
+/* test request button displayed on the request-title-bar */
+.test-request { cursor: pointer; text-decoration: none; color: #000; letter-spacing: 1px; background: #fff; 
+				border-radius: 6px; padding: 2px 4px; right: 4px; text-transform: uppercase; font-size: 80%; 
+				margin-right: 5px; position: absolute; right: 0px; top: 2px; z-index: 20; }
+.test-request:hover { background: #7AB1D3; color: #fff; }

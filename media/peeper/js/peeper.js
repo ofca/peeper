@@ -14,6 +14,11 @@ var Peeper = Class.extend({
 		var me = this;
 		
 		/**
+		 * @var  object
+		 */
+		this.requests = {};
+		
+		/**
 		 * @var  object  Ajax request.
 		 */
 		this.ajaxRequest = null;
@@ -82,6 +87,18 @@ var Peeper = Class.extend({
 		++this.lastId;
 		return 'peeper-'+this.lastId;
 	}, // id
+	/**
+	 * Adds request.
+	 * 
+	 * @param   integer  Request id.
+	 * @param   object   Information about request.
+	 * @return  this
+	 * @chainable
+	 */
+	addRequest: function(id, data){
+		this.requests[id] = data;
+		return this;
+	}, // eo addRequest
 	/**
 	 * Sets URL to Peeper controller action.
 	 * 
@@ -224,11 +241,73 @@ var Peeper = Class.extend({
 	makeMagic: function(){
 		
 		// create json-trees
+		this.initBasicActions();
 		this.createJsonTree();
 		this.createXMLTree();
 		this.initDBQueryTester();
+		this.initRequestsTester();
 		
 	}, // eo parse
+	initBasicActions: function(){
+		
+		$('.request-title', this.$data).toggle(
+			function(){
+				$(this).next().slideDown();
+			},
+			function(){
+				$(this).next().slideUp();
+			}
+		);
+		
+		$('.item-header', this.$data).click(function(){
+			
+			var $next = $(this).next();
+			
+			if ($next.css('display') == 'none'){
+				$next.slideDown();
+			} else {
+				$next.slideUp();
+			}
+			
+		});
+		
+	}, // initBasicActions
+	initRequestsTester: function(){
+		
+		var me = this;
+		
+		$('.test-request', this.$data).click(function(e){
+			
+			e.stopPropagation();
+			
+			var id = $(this).parent().parent().attr('id');
+			
+			var req = me.requests[id],
+				post = false;
+			
+			if ($.isArray(req.post) && req.post.length != 0){
+				post = true;
+			} else {
+				if ( ! $.isEmptyObject(req.post)){
+					post = true;
+				}
+			}
+			
+			if (req.ajax){
+				$.ajax({
+					beforeSend: function(jqXHR, settings){
+						console.log(jqXHR);
+						console.log(settings);
+					},
+					url: req.url,
+					type: post ? 'POST' : 'GET',
+					data: post ? req.post : req.get
+				});
+			} 
+			
+		});
+		
+	}, // eo initRequestsTester
 	initDBQueryTester: function(){
 		
 		var me = this;
@@ -403,9 +482,15 @@ var Peeper = Class.extend({
 		
 		$('.ajax-response .application-json', this.$data).each(function(){
 			
-			var $this = $(this),
-				json = $.parseJSON($this.find('p').text()),
-				html = '<div class="json-tree">' + me.jsonTree(json) + '</div>',
+			var $this = $(this);
+			
+			try {
+				var json = $.parseJSON($this.find('p').text());
+			} catch (e) {
+				return;
+			}
+				
+			var html = '<div class="json-tree">' + me.jsonTree(json) + '</div>',
 				$next = $this.next(); 
 			
 			$next.append(html);
