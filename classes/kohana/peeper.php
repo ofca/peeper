@@ -24,6 +24,8 @@ class Kohana_Peeper {
 	 */
 	public static $debug = array();
 	
+	public static $cache_dir = '';
+	
 	/**
 	 * Initialize Peeper (register shutdown handler).
 	 * 
@@ -36,14 +38,30 @@ class Kohana_Peeper {
 			return;
 		}
 		
+		
+		
 		// request start
 		Peeper::$start = microtime();
 		
+		Peeper::$cache_dir = APPPATH.'cache/peeper/'.$_SERVER['REMOTE_ADDR'].'/'.time().'/';
+				
 		// register Peeper shutdown handler
 		register_shutdown_function(array('Peeper', 'shutdown_handler'));
 		
 		Peeper::$_init = TRUE;
 	} // eo init
+	
+	public static function create_cache_dir()
+	{
+		if ( ! is_dir(Peeper::$cache_dir))
+		{
+			// Create the cache directory
+			mkdir(Peeper::$cache_dir, 0777, TRUE);
+
+			// Set permissions (must be manually set to fix umask issues)
+			chmod(Peeper::$cache_dir, 0777);
+		}
+	}
 	
 	/**
 	 * See [Debug::dump].
@@ -286,6 +304,7 @@ class Kohana_Peeper {
 	public static function shutdown_handler()
 	{
 		$config = Kohana::config('peeper');
+		
 		 
 		// Do not execute when not active or when it is request to Peeper controller
 		if ( ! Peeper::$_init OR in_array(Request::$initial->controller(), $config['excluded_controllers']))
@@ -307,19 +326,22 @@ class Kohana_Peeper {
 			Peeper::get_included_files() +
 			Peeper::get_loaded_extensions();
 		
-		$path = Peeper::_create_dir();
+		//$path = Peeper::_create_dir();
+		Peeper::create_cache_dir();
 		
 		try
-		{	
-			$fp = fopen($path.'index', "a+");
+		{
+			list($msec, $sec) = explode(' ', Peeper::$start);
+			
+			/*$fp = fopen($path.'index', "a+");
 			if (flock($fp, LOCK_EX))
 			{
 				fwrite($fp, Peeper::$start."\n");
 				flock($fp, LOCK_UN);
 				fclose($fp);
-			}
+			}*/
 			
-			file_put_contents($path.Peeper::$start, serialize($output), LOCK_EX);
+			file_put_contents(Peeper::$cache_dir.'.'.$msec, serialize($output), LOCK_EX);
 		}
 		catch (Exception $e)
 		{
@@ -405,11 +427,22 @@ class Kohana_Peeper {
 		$output['ajax_response'] = $contents;
 		$output['ajax_response_type'] = 'text/plain';
 				
-		$path = Peeper::_create_dir();
+		//$path = Peeper::_create_dir();
+		Peeper::create_cache_dir();
 		
 		try
-		{			
-			file_put_contents($path.Peeper::$start, serialize($output), LOCK_EX);
+		{
+			list($msec, $sec) = explode(' ', Peeper::$start);
+			
+			/*$fp = fopen($path.'index', "a+");
+			if (flock($fp, LOCK_EX))
+			{
+				fwrite($fp, Peeper::$start."\n");
+				flock($fp, LOCK_UN);
+				fclose($fp);
+			}*/
+			
+			file_put_contents(Peeper::$cache_dir.'.'.$msec, serialize($output), LOCK_EX);
 		}
 		catch (Exception $e)
 		{

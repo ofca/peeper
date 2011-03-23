@@ -45,7 +45,7 @@ class Controller_Peeper extends Controller {
 		$files_content = array();
 		$result = array();
 		
-		$dir = APPPATH.'cache/peeper/'.md5(Request::$user_agent.Request::$client_ip).'/';
+		$dir = APPPATH.'cache/peeper/'.$_SERVER['REMOTE_ADDR'].'/';
 		
 		// 10 seconds
 		while($timeout < 30) 
@@ -54,109 +54,63 @@ class Controller_Peeper extends Controller {
 			{
 				exit;
 			}*/
-			clearstatcache(TRUE, $dir.'index');
+			clearstatcache();
 			
-			if (filesize($dir.'index') != 0)
-			{
-				$fp = fopen($dir.'index', "r+");
-				if (flock($fp, LOCK_EX))
-				{
-					while (!feof($fp)) {
+			$files = scandir($dir);
+			$array = array();
 
-						$line = fgets($fp);
-						if (empty($line)) continue;
-						$line = str_replace("\n", '', $line);
-						list($msec, $sec) = explode(' ', $line);
-					
-						$msec = (float) $msec;
-						$sec = (int) $sec;
-						
-						if ( ! isset($array[$sec]))
-						{
-							$array[$sec] = array();
-						}
-						
-						$array[$sec][$line] = $msec;
-						$files_content[$line] = unserialize(file_get_contents($dir.$line));
-						unlink($dir.$line);
-						usleep(10);
-					}
-					fclose($fp);
-					$fp = fopen($dir.'index', "w");
-					flock($fp, LOCK_UN);
-					fclose($fp);
-				}
-				
-				if (empty($array))
+			foreach ($files as $file)
+			{ 
+				if ($file == '.' OR $file == '..' OR $file[0] == '.' OR $file[0] == '_')
 				{
-					goto next;
+					continue;
 				}
 				
-				krsort($array);
-				
-				foreach ($array as $sec => $msec)
-				{
-					arsort($array[$sec]);
-					
-					foreach ($array[$sec] as $file => $msec)
-					{						
-						$result[] = $files_content[$file];
-					}
-				}
-			
-				return $this->render($result);
+				$array[] = $file;
 			}
-			
-			/*if (file_exists($dir) AND is_dir($dir))
+
+			if ( ! empty($array))
 			{
+				arsort($array, SORT_NUMERIC);
+				
+				$directory = $array[0];
+				$path = $dir.$directory.'/';
 				$array = array();
 				
-				$handler = opendir($dir);
+				if ($directory == time())
+				{
+					sleep(1);	
+				}
 				
-				while ($file = readdir($handler))
-				{ 
+				$files = scandir($path);
+				
+				foreach ($files as $file)
+				{
 					if ($file == '.' OR $file == '..')
 					{
 						continue;
 					}
 					
-					list($msec, $sec) = explode(' ', $file);
+					$array[] = ltrim($file, '.');
+				}
+				
+				if ( ! empty($array))
+				{
+					arsort($array, SORT_NUMERIC);
 					
-					$msec = (float) $msec;
-					$sec = (int) $sec;
-					
-					if ( ! isset($array[$sec]))
+					foreach ($array as $file)
 					{
-						$array[$sec] = array();
+						$files_content[] = unserialize(file_get_contents($path.'.'.$file));
 					}
 					
-					$array[$sec][$file] = $msec;
-					$files_content[$file] = unserialize(file_get_contents($dir.$file));
-					
-					// remove cache file
-					//unlink($dir.$file);
+					rename($dir.$directory, $dir.'_'.$directory);	
+					return $this->render($files_content);
 				}
-				
-				// there's no new files, skip below actions
-				if (empty($array))
+				else
 				{
-					goto next;
+					rename($dir.$directory, $dir.'_'.$directory);	
 				}
-				
-				krsort($array);
-				
-				foreach ($array as $sec => $msec)
-				{
-					arsort($array[$sec]);
-					
-					foreach ($array[$sec] as $file => $msec)
-					{						
-						$result[] = $files_content[$file];
-					}
-				}
-			
-				return $this->render($result);
-			}*/
+			}
 			
 			next:
 				$timeout++;
