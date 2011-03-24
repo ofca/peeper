@@ -394,9 +394,18 @@ var Peeper = Class.extend({
 		$('.ajax-response td.text-html, .ajax-response td.text-xml', this.$data).each(function(){
 			
 			var $this = $(this),
-				xml = $this.find('div :first'),
-				html = '<div class="xml-tree"><ul>' + me.XMLTree(xml.get(0)) + '</ul></div>',
-				$next = $this.next();
+				xml = $this.find('div :first');
+				
+				try
+				{
+					html = '<div class="xml-tree"><ul>' + me.XMLTree(xml.get(0)) + '</ul></div>';
+				}
+				catch (e)
+				{
+					return;	
+				}
+				
+			var $next = $this.next();
 				
 			$next.append(html);
 			

@@ -35,6 +35,7 @@ body { margin: 0 10px 10px 10px; background: #262621; font-family: Verdana; font
 	.request.ajax:nth-child(2n) .request-title { background: #7AB1D3; }
 		.request-title .ajax { background: #fff; border-radius: 4px; padding: 2px; font-size: 90%; text-transform: uppercase; color: #000; }
 	.request.error .request-title { color: #F5F2F4; background: #CF4686 !important; border-color: #B01E53; }
+	.request-title span.redirect { color: gray; font-style: italic; margin-left: 5px; }
 	.request-items { display: none; padding: 5px; }
 		.request-item {}
 			.item-container { background: #CFE1F4; }

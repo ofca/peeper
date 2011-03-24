@@ -11,7 +11,7 @@
 					<td class='<?php echo str_replace('/', '-', $content_type) ?>'>						
 						<p class='debug'><?php echo HTML::chars($response) ?></p>						
 						
-						<?php if ($content_type == 'text/html'): ?>
+						<?php if ($content_type == 'text/html' OR $content_type == 'text/xml'): ?>
 							<div class='text-html' style='display: none'><?php echo $response ?></div>
 						<?php endif ?>
 					</td>
