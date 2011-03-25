@@ -57,11 +57,12 @@ var Peeper = Class.extend({
 		$(function(){
 			// create toolbar and logs container
 			var html =
-				'<h1 id="peeper"><span class="ko3">KO3</span><span class="peeper">Peeper</span></h1>' + 
+				'<h1 id="peeper"><a><span class="ko3">KO3</span><span class="peeper">Peeper</span></a></h1>' + 
 				'<div id="toolbar">' +
 				'	<a id="peeper-stop">Stop</a>' +
 				'</div>' +
-				'<div id="result"></div>';
+				'<div id="result"></div>' +
+				'<div id="copyrights">developed by sauveur</div>';
 				
 			document.getElementsByTagName('body')[0].innerHTML = html;
 			

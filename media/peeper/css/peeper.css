@@ -21,21 +21,41 @@ table, caption, tbody, tfoot, thead, tr, th, td {
 	
 body { margin: 0 10px 10px 10px; background: #262621; font-family: Verdana; font-size: 90%; }
 
-#peeper { color: #FFFFFF; left: 20px; position: absolute; text-transform: uppercase; top: 8px; z-index: 1000;}
-	#peeper .peeper { color: #E6006B; font-weight: bold; }	
-	#peeper .ko3 { color: #AADA5F; font-weight: bold; }
+#peeper { color: #FFFFFF; left: 20px; position: absolute; text-transform: uppercase; top: 12px; z-index: 1000; width: 126px; height: 15px; }
+	#peeper a { background: url(../images/logo.png) no-repeat; display: block; width: 126px; height: 15px; }
+		#peeper span { display: none; }
+	/*#peeper .peeper { color: #E6006B; font-weight: bold; }	
+	#peeper .ko3 { color: #AADA5F; font-weight: bold; }*/
+
+#copyrights { background: #262621; width: 100%; text-align: right; position: fixed; z-index: 1000; padding: 5px; bottom: 0px; right: 5px; color: #73735e; font-size: 70%; }
 
 #toolbar { margin: 10px 0px; text-align: right; }
 	#peeper-stop { cursor: pointer; background: #71811C; border-radius: 6px 6px 6px 6px; color: #DCE7C2; font-size: 70%; padding: 2px 4px; text-transform: uppercase; }
 
+#result { margin-bottom: 30px; }
 .request { background: #fff; border-radius: 8px; margin-top: 10px; }
+	/* REQUEST BAR/HEADER */
+	/* ------------------ */
+	/* normal request (green) */
 	.request-title { position: relative; cursor: pointer; font-size: 70%; margin-bottom: 0; color: #19480D; font-weight: normal; background: #AFD36F; border: 3px solid #83C151; border-radius: 8px 8px 8px 8px; padding: 2px 4px; }
-	.request:nth-child(2n) .request-title { background: #C4DC92; }
+	/* stripes */
+	.request:nth-child(2n) .request-title { background: #C4DC92; }	
+		
+	/* ajax request (blue) */
 	.request.ajax .request-title { background: #91C1DE; border-color: #497EBE; }
+	/* stripes for ajax request */
 	.request.ajax:nth-child(2n) .request-title { background: #7AB1D3; }
+		/* "AJAX" label */
 		.request-title .ajax { background: #fff; border-radius: 4px; padding: 2px; font-size: 90%; text-transform: uppercase; color: #000; }
+		/* request method (post, get, etc.) and status (200, 404, 500 etc.) */
+		.request-title .method, .request-title .status { opacity: 0.6; }
+	
+	/* error request (red) */
 	.request.error .request-title { color: #F5F2F4; background: #CF4686 !important; border-color: #B01E53; }
-	.request-title span.redirect { color: gray; font-style: italic; margin-left: 5px; }
+	
+		/* request redirection */
+		.request-title span.redirect { opacity: 0.6; color: #000; font-style: italic; margin-left: 5px; }
+		
 	.request-items { display: none; padding: 5px; }
 		.request-item {}
 			.item-container { background: #CFE1F4; }

@@ -58,7 +58,7 @@ class Controller_Peeper extends Controller {
 			
 			$array = array();
 			// archive logs
-			$old = array();
+			$delete = array();
 			
 			// clear file status cache
 			clearstatcache();
@@ -78,19 +78,13 @@ class Controller_Peeper extends Controller {
 					// all directories older then 10 minut, will be deleted
 					if (time() - 600 > $file)
 					{
-						$old[] = $dir.$file;	
+						$delete[] = $dir.$file;	
 					}
 					else
 					{
 						$array[] = $file;
 					}
 				}
-			}
-			
-			// remove old dirs
-			if ($old)
-			{
-				array_map(array($this, '_remove_dir'), $old);
 			}
 			
 			if ($array)
@@ -105,9 +99,9 @@ class Controller_Peeper extends Controller {
 				$array = array();
 				
 				// in the directory may show up new logs
-				if ($directory == time())
+				if ($directory == time() OR ! file_exists($path))
 				{
-					sleep(1);	
+					goto next;	
 				}
 				
 				// get all logs
@@ -130,21 +124,32 @@ class Controller_Peeper extends Controller {
 					
 					foreach ($array as $file)
 					{
-						$files_content[] = unserialize(file_get_contents($path.$file));
+						if ( ! file_exists($path.$file))
+						{
+							continue;
+						}
 						
-						// delete this file
-						unlink($path.$file);
+						$files_content[] = unserialize(file_get_contents($path.$file));
 					}
 					
 					// remove directory
-					rmdir($dir.$directory);	
-					
-					return $this->render($files_content);
+					$delete[] = $dir.$directory;
 				}
 				else
-				{	
-					rmdir($dir.$directory);	
+				{
+					$delete[] = $dir.$directory;
 				}
+			}
+			
+			// remove old dirs
+			if ($delete)
+			{ 
+				array_map(array($this, '_remove_dir'), $delete);
+			}
+			
+			if ($files_content)
+			{
+				return $this->render($files_content);	
 			}
 			
 			next:
@@ -299,9 +304,15 @@ class Controller_Peeper extends Controller {
 					} 
 				} 
 			} 
-     
-			reset($objects); 
-			rmdir($dir); 
+     		
+			if (count(scandir($dir)) != 2)
+			{
+				$this->_remove_dir($dir);
+			}
+			else
+			{			
+				rmdir($dir);
+			}
 		} 
 	} // eo _rrmdir
 } // eo Controller_Peeper

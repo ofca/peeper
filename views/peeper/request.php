@@ -5,7 +5,7 @@
 			<span class='ajax'>ajax</span>	
 		<?php endif ?>
 		
-		<?php echo '<span class="status">['.$status.']</span> '.$uri ?>
+		<?php echo '<span class="method">'.$globals['_SERVER']['REQUEST_METHOD'].'</span> <span class="status">['.$status.']</span> '.$uri ?>
 		<?php if ($redirect !== NULL): ?>
 			<span class="redirect">--(<?php echo $status ?>)--> <?php echo $redirect ?></span>
 		<?php endif ?>

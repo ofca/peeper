@@ -39,11 +39,6 @@ class Kohana_Peeper {
 		{
 			return;
 		}
-		
-		// request start
-		Peeper::$start = microtime();
-		
-		Peeper::$cache_dir = APPPATH.'cache/peeper/'.$_SERVER['REMOTE_ADDR'].'/'.time().'/';
 				
 		// register Peeper shutdown handler
 		register_shutdown_function(array('Peeper', 'shutdown_handler'));
@@ -348,13 +343,16 @@ class Kohana_Peeper {
 			Peeper::get_included_files() +
 			Peeper::get_loaded_extensions();
 		
-		//$path = Peeper::_create_dir();
+		// request start
+		Peeper::$start = microtime();
+		list($msec, $sec) = explode(' ', Peeper::$start);
+		
+		Peeper::$cache_dir = APPPATH.'cache/peeper/'.$_SERVER['REMOTE_ADDR'].'/'.$sec.'/';
+		
 		Peeper::create_cache_dir();
 		
 		try
 		{
-			list($msec, $sec) = explode(' ', Peeper::$start);
-						
 			file_put_contents(Peeper::$cache_dir.(string)(float)$msec, serialize($output), LOCK_EX);
 		}
 		catch (Exception $e)
@@ -453,7 +451,13 @@ class Kohana_Peeper {
 		{
 			
 		}
-						
+		
+		// request start
+		Peeper::$start = microtime();
+		list($msec, $sec) = explode(' ', Peeper::$start);
+		
+		Peeper::$cache_dir = APPPATH.'cache/peeper/'.$_SERVER['REMOTE_ADDR'].'/'.$sec.'/';
+		
 		Peeper::create_cache_dir();
 		
 		try
