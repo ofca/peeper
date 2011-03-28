@@ -14,6 +14,8 @@ class Kohana_Peeper {
 	 */
 	protected static $_init = FALSE;
 	
+	protected static $_writed = FALSE;
+	
 	/**
 	 * @var  string  Peeper init time
 	 */
@@ -37,11 +39,6 @@ class Kohana_Peeper {
 		{
 			return;
 		}
-		
-		// request start
-		Peeper::$start = microtime();
-		
-		Peeper::$cache_dir = APPPATH.'cache/peeper/'.$_SERVER['REMOTE_ADDR'].'/'.time().'/';
 				
 		// register Peeper shutdown handler
 		register_shutdown_function(array('Peeper', 'shutdown_handler'));
@@ -283,12 +280,46 @@ class Kohana_Peeper {
 	} // eo get_globals
 	
 	/**
+	 * Return information about request.
+	 * 
+	 * @return	array
+	 */
+	public static function get_request()
+	{
+		$request = Request::$initial;
+		$response = $request->response();
+		
+		$ajax = Request::$initial->is_ajax();
+		$redirect = $response->headers('location');
+		
+		$array =
+			 array(
+				'request' => array(
+					'uri'			=> Request::$initial->uri(),
+					'content_type'	=> $response->headers('content-type')->value(),
+					'ajax'			=> $ajax,
+					'response'		=> $ajax ? $response->body() : NULL,
+					'redirect'		=> $redirect !== NULL ? $redirect->value() : NULL,
+					'status'		=> $response->status(),
+					'error'			=> FALSE
+				)
+			);
+				
+		return $array;
+	} // eo get_request
+	
+	/**
 	 * Writes cache file with collected data.
 	 * 
 	 * @return	void
 	 */
 	public static function shutdown_handler()
 	{
+		if (Peeper::$_writed)
+		{
+			return;	
+		}
+		
 		$config = Kohana::config('peeper');
 		
 		 
@@ -304,7 +335,7 @@ class Kohana_Peeper {
 		
 		// collect data
 		$output = 
-			Peeper::get_ajax() +
+			Peeper::get_request() +
 			Peeper::get_debug() +
 			Peeper::get_profiler() +
 			Peeper::get_globals() +
@@ -312,26 +343,35 @@ class Kohana_Peeper {
 			Peeper::get_included_files() +
 			Peeper::get_loaded_extensions();
 		
-		//$path = Peeper::_create_dir();
+		// request start
+		Peeper::$start = microtime();
+		list($msec, $sec) = explode(' ', Peeper::$start);
+		
+		Peeper::$cache_dir = APPPATH.'cache/peeper/'.$_SERVER['REMOTE_ADDR'].'/'.$sec.'/';
+		
 		Peeper::create_cache_dir();
 		
 		try
 		{
-			list($msec, $sec) = explode(' ', Peeper::$start);
-						
 			file_put_contents(Peeper::$cache_dir.(string)(float)$msec, serialize($output), LOCK_EX);
 		}
 		catch (Exception $e)
 		{
 			
 		}
+		
+		Peeper::$_writed = TRUE;
 	} // eo shutdown
 	
 	public static function error($e)
 	{
+		if (Peeper::$_writed)
+		{
+			return;	
+		}
+		 
 		// collect data
-		$output = 
-			Peeper::get_ajax() +
+		$output =
 			Peeper::get_debug() +
 			Peeper::get_profiler() +
 			Peeper::get_globals() +
@@ -339,11 +379,22 @@ class Kohana_Peeper {
 			Peeper::get_included_files() +
 			Peeper::get_loaded_extensions();
 		
+		$request = Request::$initial;
+		
+		$output['request'] = array(
+			'uri'			=> $request->uri(),
+			'content_type'	=> 'text/html',
+			'error'			=> TRUE,
+			'ajax'			=> $request->is_ajax(),
+			'redirect'		=> NULL,
+			'status'		=> NULL
+		);
+		
 		try
 		{
 			// Get the exception information
 			$type    = get_class($e);
-			$code    = $e->getCode();
+			$code    = $output['request']['status'] = $e->getCode();
 			$message = $e->getMessage();
 			$file    = $e->getFile();
 			$line    = $e->getLine();
@@ -393,7 +444,7 @@ class Kohana_Peeper {
 			}
 
 			// Display the contents of the output buffer
-			$contents = ob_get_contents();
+			$output['request']['response'] = ob_get_contents();
 			ob_clean();
 		}
 		catch (Exception $e)
@@ -401,10 +452,12 @@ class Kohana_Peeper {
 			
 		}
 		
-		$output += array('error' => TRUE);
-		$output['ajax_response'] = $contents;
-		$output['ajax_response_type'] = 'text/plain';
-				
+		// request start
+		Peeper::$start = microtime();
+		list($msec, $sec) = explode(' ', Peeper::$start);
+		
+		Peeper::$cache_dir = APPPATH.'cache/peeper/'.$_SERVER['REMOTE_ADDR'].'/'.$sec.'/';
+		
 		Peeper::create_cache_dir();
 		
 		try
@@ -417,6 +470,8 @@ class Kohana_Peeper {
 		{
 			
 		}
+		
+		Peeper::$_writed = TRUE;
 	}
 	
 	public static function create_cache_dir()

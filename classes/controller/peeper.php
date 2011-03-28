@@ -58,7 +58,7 @@ class Controller_Peeper extends Controller {
 			
 			$array = array();
 			// archive logs
-			$old = array();
+			$delete = array();
 			
 			// clear file status cache
 			clearstatcache();
@@ -78,19 +78,13 @@ class Controller_Peeper extends Controller {
 					// all directories older then 10 minut, will be deleted
 					if (time() - 600 > $file)
 					{
-						$old[] = $dir.$file;	
+						$delete[] = $dir.$file;	
 					}
 					else
 					{
 						$array[] = $file;
 					}
 				}
-			}
-			
-			// remove old dirs
-			if ($old)
-			{
-				array_map(array($this, '_remove_dir'), $old);
 			}
 			
 			if ($array)
@@ -105,9 +99,9 @@ class Controller_Peeper extends Controller {
 				$array = array();
 				
 				// in the directory may show up new logs
-				if ($directory == time())
+				if ($directory == time() OR ! file_exists($path))
 				{
-					sleep(1);	
+					goto next;	
 				}
 				
 				// get all logs
@@ -130,21 +124,32 @@ class Controller_Peeper extends Controller {
 					
 					foreach ($array as $file)
 					{
-						$files_content[] = unserialize(file_get_contents($path.$file));
+						if ( ! file_exists($path.$file))
+						{
+							continue;
+						}
 						
-						// delete this file
-						unlink($path.$file);
+						$files_content[] = unserialize(file_get_contents($path.$file));
 					}
 					
 					// remove directory
-					rmdir($dir.$directory);	
-					
-					return $this->render($files_content);
+					$delete[] = $dir.$directory;
 				}
 				else
-				{	
-					rmdir($dir.$directory);	
+				{
+					$delete[] = $dir.$directory;
 				}
+			}
+			
+			// remove old dirs
+			if ($delete)
+			{ 
+				array_map(array($this, '_remove_dir'), $delete);
+			}
+			
+			if ($files_content)
+			{
+				return $this->render($files_content);	
 			}
 			
 			next:
@@ -168,61 +173,43 @@ class Controller_Peeper extends Controller {
 		
 		foreach ($result as $item)
 		{
-			$error = FALSE;
-			$title = NULL;
-			
-			$ajax = $item['ajax_request'];
-			
-			if (isset($item['profiler']) AND isset($item['profiler']['groups']) AND isset($item['profiler']['groups']['requests']))
-			{	
-				reset($item['profiler']['groups']['requests']);
-				$title = trim(key($item['profiler']['groups']['requests']), '"');
-			}
-			
-			if (isset($item['error']))
-			{
-				$error = TRUE;
-			}
-			
-			$view = View::factory('peeper/request', array('title' => $title, 'ajax_request' => $ajax, 'error' => $error, 'globals' => $item['globals']));
+			extract($item);
+							
+			$view = View::factory('peeper/request', $request + array('globals' => $globals));
 			
 			$view->items = array();
 			
-			if ( ! empty($item['debug']))
+			// Debug panel (displays dumped variables)
+			if ($debug)
 			{
-				$view->items['debug'] = View::factory('peeper/_debug', array('debug' => $item['debug']));
+				$view->items['debug'] = View::factory('peeper/_debug', array('debug' => $debug));
 			}
+			
+			// Response is rendered if there was an error or if it's a ajax request
+			if ($request['response'] !== NULL AND ($request['ajax'] OR $request['error']))
+			{
+				$view->items['response'] = 
+					View::factory(
+						'peeper/_response', 
+						array(
+							'error' => $request['error'], 
+							'response' => $request['response'], 
+							'content_type' => $request['content_type']
+						)
+					);
+			}
+			
+			// Profiler
+			$view->items['profiler'] = View::factory('peeper/_profiler', $profiler);
+			// Globals
+			$view->items['globals'] = View::factory('peeper/_globals', array('vars' => $globals));	
+			// Loaded modules
+			$view->items['modules'] = View::factory('peeper/_modules', array('modules' => $modules));
+			// Included files
+			$view->items['included_files'] = View::factory('peeper/_included_files', array('files' => $included_files));
+			// Loaded extensions
+			$view->items['loaded_extensions'] = View::factory('peeper/_loaded_extensions', array('files' => $loaded_extensions));
 						
-			if ($ajax AND isset($item['ajax_response']))
-			{
-				$view->items['ajax_response'] = View::factory('peeper/_ajax_response', array('error' => $error, 'response' => $item['ajax_response'], 'content_type' => $item['ajax_response_type']));
-			}
-			
-			if (isset($item['profiler']))
-			{
-				$view->items['profiler'] = View::factory('peeper/_profiler', $item['profiler']);
-			}
-			
-			if (isset($item['globals']))
-			{
-				$view->items['globals'] = View::factory('peeper/_globals', array('vars' => $item['globals']));	
-			}
-			
-			if (isset($item['modules']))
-			{
-				$view->items['modules'] = View::factory('peeper/_modules', array('modules' => $item['modules']));
-			}
-			
-			if (isset($item['included_files']))
-			{
-				$view->items['included_files'] = View::factory('peeper/_included_files', array('files' => $item['included_files']));
-			}
-			
-			if (isset($item['loaded_extensions']))
-			{
-				$view->items['loaded_extensions'] = View::factory('peeper/_loaded_extensions', array('files' => $item['loaded_extensions']));
-			}
-			
 			$output .= $view;
 		}
 		
@@ -317,9 +304,15 @@ class Controller_Peeper extends Controller {
 					} 
 				} 
 			} 
-     
-			reset($objects); 
-			rmdir($dir); 
+     		
+			if (count(scandir($dir)) != 2)
+			{
+				$this->_remove_dir($dir);
+			}
+			else
+			{			
+				rmdir($dir);
+			}
 		} 
 	} // eo _rrmdir
 } // eo Controller_Peeper

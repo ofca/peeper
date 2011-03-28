@@ -57,11 +57,12 @@ var Peeper = Class.extend({
 		$(function(){
 			// create toolbar and logs container
 			var html =
-				'<h1 id="peeper"><span class="ko3">KO3</span><span class="peeper">Peeper</span></h1>' + 
+				'<h1 id="peeper"><a><span class="ko3">KO3</span><span class="peeper">Peeper</span></a></h1>' + 
 				'<div id="toolbar">' +
 				'	<a id="peeper-stop">Stop</a>' +
 				'</div>' +
-				'<div id="result"></div>';
+				'<div id="result"></div>' +
+				'<div id="copyrights">developed by sauveur</div>';
 				
 			document.getElementsByTagName('body')[0].innerHTML = html;
 			
@@ -394,9 +395,18 @@ var Peeper = Class.extend({
 		$('.ajax-response td.text-html, .ajax-response td.text-xml', this.$data).each(function(){
 			
 			var $this = $(this),
-				xml = $this.find('div :first'),
-				html = '<div class="xml-tree"><ul>' + me.XMLTree(xml.get(0)) + '</ul></div>',
-				$next = $this.next();
+				xml = $this.find('div :first');
+				
+				try
+				{
+					html = '<div class="xml-tree"><ul>' + me.XMLTree(xml.get(0)) + '</ul></div>';
+				}
+				catch (e)
+				{
+					return;	
+				}
+				
+			var $next = $this.next();
 				
 			$next.append(html);
 			

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>KO3 PEEPER</title>
+		<title>KO PEEPER</title>
 		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
 		<link REL="SHORTCUT ICON" HREF="<?php echo Route::get('peeper/media')->uri(array('file' => 'images/favicon.ico')) ?>">
 		
