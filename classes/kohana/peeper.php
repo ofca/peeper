@@ -375,8 +375,8 @@ abstract class Kohana_Peeper {
 		
 		return
 			array(
-				'msec'	=> $msec,
-				'sec'	=> $sec,
+				'msec'	=> (float) $msec,
+				'sec'	=> (int) $sec,
 				'output'=> $output,
 				'user'	=> $_SERVER['REMOTE_ADDR']
 			);
@@ -475,13 +475,69 @@ abstract class Kohana_Peeper {
 		
 		return
 			array(
-				'msec'	=> $msec,
-				'sec'	=> $sec,
+				'msec'	=> (float) $msec,
+				'sec'	=> (int) $sec,
 				'output'=> $output,
 				'user'	=> $_SERVER['REMOTE_ADDR']
 			);
 	} // eo error
 	
+	public function suck_milk() {} // eo suckMilk
+	
+	/**
+	 * Render html.
+	 * 
+	 * @param	array
+	 * @return	void
+	 */
+	public function render(array $result)
+	{
+		$output = '';
+		
+		foreach ($result as $item)
+		{
+			extract($item);
+							
+			$view = View::factory('peeper/request', $request + array('globals' => $globals));
+			
+			$view->items = array();
+			
+			// Debug panel (displays dumped variables)
+			if ($debug)
+			{
+				$view->items['debug'] = View::factory('peeper/_debug', array('debug' => $debug));
+			}
+			
+			// Response is rendered if there was an error or if it's a ajax request
+			if ($request['response'] !== NULL AND ($request['ajax'] OR $request['error']))
+			{
+				$view->items['response'] = 
+					View::factory(
+						'peeper/_response', 
+						array(
+							'error' => $request['error'], 
+							'response' => $request['response'], 
+							'content_type' => $request['content_type']
+						)
+					);
+			}
+			
+			// Profiler
+			$view->items['profiler'] = View::factory('peeper/_profiler', $profiler);
+			// Globals
+			$view->items['globals'] = View::factory('peeper/_globals', array('vars' => $globals));	
+			// Loaded modules
+			$view->items['modules'] = View::factory('peeper/_modules', array('modules' => $modules));
+			// Included files
+			$view->items['included_files'] = View::factory('peeper/_included_files', array('files' => $included_files));
+			// Loaded extensions
+			$view->items['loaded_extensions'] = View::factory('peeper/_loaded_extensions', array('files' => $loaded_extensions));
+						
+			$output .= $view;
+		}
+		
+		return $output;
+	} // eo render
 	
 } // eo Peeper
 
