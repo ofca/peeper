@@ -1,6 +1,6 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 
-Peeper::init();
+//Peeper::instance()->init();
 
 // Static file serving (CSS, JS, images)
 Route::set('peeper/media', 'peeper/media(/<file>)', array('file' => '.+'))
