@@ -2,6 +2,10 @@
 
 return array(
 	/**
+	 * Default driver used to store logs.
+	 */
+	'default_driver'	=> 'file',
+	/**
 	 * Controllers which will be skipped.
 	 */
 	'excluded_controllers' => array(		

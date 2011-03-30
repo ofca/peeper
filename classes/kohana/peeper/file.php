@@ -10,9 +10,16 @@
  */
 class Kohana_Peeper_File extends Peeper {
 	
-	public function shutdown_handler()
+	public function shutdown_handler(Exception $e = NULL)
 	{
-		$array = parent::shutdown_handler();
+		if ($e === NULL)
+		{
+			$array = parent::shutdown_handler();
+		}
+		else
+		{ 
+			$array = $this->error($e);
+		}
 		
 		if ( ! is_array($array))
 		{

@@ -8,7 +8,7 @@
  * @copyright	(c) 2012 Adam Sauveur <sauveur@emve.org>
  */
 abstract class Kohana_Peeper {
-	
+		
 	/**
 	 * @var  Kohana_Peeper instances
 	 */
@@ -27,7 +27,7 @@ abstract class Kohana_Peeper {
 	/**
 	 * @var  Kohana_Config
 	 */
-	protected $_config = NULL;
+	protected static $_config = NULL;
 
 	/**
 	 * @var  array  Array with dumped vars. Array is shared between all instances!
@@ -50,7 +50,7 @@ abstract class Kohana_Peeper {
 		if ($this->_init === FALSE)
 		{		
 			// register Peeper shutdown handler
-			register_shutdown_function(array($class, 'shutdown_handler'));
+			register_shutdown_function(array($this, 'shutdown_handler'));
 			
 			$this->_init = TRUE;
 		}
@@ -66,21 +66,23 @@ abstract class Kohana_Peeper {
 	 */
 	public static function instance($driver = NULL)
 	{
-		$driver = $driver ?: Peeper::$default;
-		
-		if (isset(Peeper::$_instances[$driver]))
+		if (Peeper::$_config === NULL)
 		{
-			return Peeper::$_instances[$driver];	
+			Peeper::$_config = Kohana::config('peeper');
+		}
+		 
+		$driver = $driver ?: Peeper::$_config['default_driver'];
+		
+		if (isset(self::$_instances[$driver]))
+		{ 
+			return self::$_instances[$driver];	
 		}
 		
-		$class = 'Peeper_'.ucfirst($driver);
-		return Peeper::$_instances[$driver] = new $class;
+		$class = 'Peeper_'.ucfirst($driver); 
+		return self::$_instances[$driver] = new $class;
 	} // eo instance
 	
-	public function __construct()
-	{
-		$this->_config = Kohana::config('peeper');
-	} // eo __construct
+	public function __construct() {} // eo __construct
 	
 	/**
 	 * See [Debug::dump].
@@ -354,7 +356,7 @@ abstract class Kohana_Peeper {
 		// Do not execute when not active or when it is request to Peeper controller
 		if ($this->_writed OR 
 			! $this->_init OR 
-			in_array(Request::$initial->controller(), $this->_config['excluded_controllers']))
+			in_array(Request::$initial->controller(), Peeper::$_config['excluded_controllers']))
 		{	
 			return;	
 		}
@@ -380,10 +382,10 @@ abstract class Kohana_Peeper {
 			);
 	} // eo shutdown_handler
 	
-	public static function error($e)
-	{
+	public function error(Exception $e)
+	{ 
 		if ($this->_writed)
-		{
+		{ 
 			return;	
 		}
 		 
