@@ -40,183 +40,26 @@ class Controller_Peeper extends Controller {
 	 * Return logs.
 	 */
 	public function action_suckMilk()
-	{ 
-		$timeout = 1;
-		$files_content = array();
-		$result = array();
-		
-		$dir = APPPATH.'cache/peeper/'.$_SERVER['REMOTE_ADDR'].'/';
-		
-		// 30 seconds
-		while($timeout < 30) 
-		{
-			// there're no any logs
-			if ( ! is_dir($dir))
-			{
-				goto next;
-			}
-			
-			$array = array();
-			// archive logs
-			$delete = array();
-			
-			// clear file status cache
-			clearstatcache();
-			
-			// get all directories
-			if ($files = scandir($dir))
-			{	
-				foreach ($files as $file)
-				{ 
-					if ($file == '.' OR $file == '..')
-					{
-						continue;
-					}
-					
-					(int) $file;
-					
-					// all directories older then 10 minut, will be deleted
-					if (time() - 600 > $file)
-					{
-						$delete[] = $dir.$file;	
-					}
-					else
-					{
-						$array[] = $file;
-					}
-				}
-			}
-			
-			if ($array)
-			{
-				// sort directories 
-				arsort($array, SORT_NUMERIC);
-				
-				// first directory will be the oldest
-				$directory = $array[0];
-				$path = $dir.$directory.'/';
-				// clear array
-				$array = array();
-				
-				// in the directory may show up new logs
-				if ($directory == time() OR ! file_exists($path))
-				{
-					goto next;	
-				}
-				
-				// get all logs
-				if ($files = scandir($path))
-				{	
-					foreach ($files as $file)
-					{
-						if ($file == '.' OR $file == '..')
-						{
-							continue;
-						}
-						
-						$array[] = (float) $file;
-					}
-				}
-				
-				if ($array)
-				{
-					arsort($array, SORT_NUMERIC);
-					
-					foreach ($array as $file)
-					{
-						if ( ! file_exists($path.$file))
-						{
-							continue;
-						}
-						
-						$files_content[] = unserialize(file_get_contents($path.$file));
-					}
-					
-					// remove directory
-					$delete[] = $dir.$directory;
-				}
-				else
-				{
-					$delete[] = $dir.$directory;
-				}
-			}
-			
-			// remove old dirs
-			if ($delete)
-			{ 
-				array_map(array($this, '_remove_dir'), $delete);
-			}
-			
-			if ($files_content)
-			{
-				return $this->render($files_content);	
-			}
-			
-			next:
-				$timeout++;
-				
-				// wait 1 second
-				sleep(1);
-		}
-		
-	} // eo action_suckMilk
-	
-	/**
-	 * Render html.
-	 * 
-	 * @param	array
-	 * @return	void
-	 */
-	public function render(array $result)
 	{
-		$output = '';
+		$timeout = 1;
 		
-		foreach ($result as $item)
-		{
-			extract($item);
-							
-			$view = View::factory('peeper/request', $request + array('globals' => $globals));
+		while($timeout < 30)
+		{ 
+			$result = Peeper::instance()->suck_milk();
 			
-			$view->items = array();
-			
-			// Debug panel (displays dumped variables)
-			if ($debug)
+			if ($result !== FALSE)
 			{
-				$view->items['debug'] = View::factory('peeper/_debug', array('debug' => $debug));
+				break;
 			}
 			
-			// Response is rendered if there was an error or if it's a ajax request
-			if ($request['response'] !== NULL AND ($request['ajax'] OR $request['error']))
-			{
-				$view->items['response'] = 
-					View::factory(
-						'peeper/_response', 
-						array(
-							'error' => $request['error'], 
-							'response' => $request['response'], 
-							'content_type' => $request['content_type']
-						)
-					);
-			}
-			
-			// Profiler
-			$view->items['profiler'] = View::factory('peeper/_profiler', $profiler);
-			// Globals
-			$view->items['globals'] = View::factory('peeper/_globals', array('vars' => $globals));	
-			// Loaded modules
-			$view->items['modules'] = View::factory('peeper/_modules', array('modules' => $modules));
-			// Included files
-			$view->items['included_files'] = View::factory('peeper/_included_files', array('files' => $included_files));
-			// Loaded extensions
-			$view->items['loaded_extensions'] = View::factory('peeper/_loaded_extensions', array('files' => $loaded_extensions));
-						
-			$output .= $view;
+			++$timeout;
+			sleep(1);
 		}
 		
 		$this
 			->response
-			->body($output);
-	} // eo render
+			->body($result);		
+	} // eo action_suckMilk
 	
 	/**
 	 * Database query tester.

@@ -4,7 +4,7 @@ return array(
 	/**
 	 * Default driver used to store logs.
 	 */
-	'default_driver'	=> 'file',
+	'default_driver'	=> 'apc',
 	/**
 	 * Controllers which will be skipped.
 	 */
