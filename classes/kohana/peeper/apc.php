@@ -64,7 +64,7 @@ class Kohana_Peeper_Apc extends Peeper {
 			if (strpos($cache['info'], 'peeper-') !== FALSE)
 			{
 				// Delete logs older then 10 minutes
-				if ($cache['creation_time'] > time() - 600)
+				if ($cache['creation_time'] < time() - 600)
 				{
 					apc_delete($cache['info']);
 					continue;	

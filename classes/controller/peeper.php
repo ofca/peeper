@@ -13,28 +13,38 @@ class Controller_Peeper extends Controller {
 	 * Index.
 	 */
 	public function action_index()
-	{	
-		$view = View::factory('peeper/index');
-		
-		$media = Route::get('peeper/media');
-		
-		$view->styles = array(
-			
-			$media->uri(array('file' => 'css/redmond/jquery-ui-1.8.11.custom.css')) => 'screen',
-			$media->uri(array('file' => 'css/peeper.css')) => 'screen'
-		);
-		
-		$view->scripts = array(
-			$media->uri(array('file' => 'js/jquery-ui-1.8.11.custom.min.js')),
-			$media->uri(array('file' => 'js/class.js')),
-			$media->uri(array('file' => 'js/peeper.js'))
-		);
+	{
+		$view = View::factory('peeper/template');
 		
 		$this
 			->response
-			->body($view);
-		
+			->body($view);		
 	} // eo action_index
+	
+	public function action_core()
+	{
+		$file = Kohana::find_file('media', 'peeper/js/peeper-loader', 'js');
+		
+		ob_start();
+		
+		try
+		{
+			include $file;
+		}
+		catch (Exception $e)
+		{
+			ob_end_clean();
+			
+			throw $e;	
+		}
+		
+		$content = ob_get_clean();
+		
+		$this
+			->response
+			->headers('content-type', 'application/javascript')
+			->body($content);
+	}
 	
 	/**
 	 * Return logs.
@@ -44,21 +54,20 @@ class Controller_Peeper extends Controller {
 		$timeout = 1;
 		
 		while($timeout < 30)
-		{ 
+		{			 
 			$result = Peeper::instance()->suck_milk();
 			
-			if ($result !== FALSE)
+			if (is_string($result))
 			{
-				break;
+				return 
+					$this
+						->response
+						->body($result);
 			}
 			
 			++$timeout;
 			sleep(1);
-		}
-		
-		$this
-			->response
-			->body($result);		
+		}		
 	} // eo action_suckMilk
 	
 	/**

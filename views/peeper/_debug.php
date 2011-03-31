@@ -1,4 +1,4 @@
-<div id='debug' class='item-container'>
+<div class='module-debug item-container'>
 	<h1 class='item-header'><?php echo __('Debug') ?> (<strong><?php echo count($debug) ?></strong>)</h1>
 	<div class='modules item-items'>
 		<table class='stripes'>
