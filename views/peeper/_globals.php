@@ -1,4 +1,4 @@
-<div id='globals' class='item-container'>
+<div class='module-globals item-container'>
 	<h1 class='item-header'><?php echo __('Globals') ?></h1>
 	<div class='modules item-items' style='display: none'>
 		<?php foreach (array('_SESSION', '_GET', '_POST', '_FILES', '_COOKIE', '_SERVER') as $var): ?>			

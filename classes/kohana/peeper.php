@@ -3,26 +3,34 @@
  * Debbuging/Profilling class
  * 
  * @package		Kohana/Peeper
- * @category	Base
+ * @category	Peeper
  * @author		Adam Sauveur <http://github.com/adam-sauveur>
  * @copyright	(c) 2012 Adam Sauveur <sauveur@emve.org>
  */
-class Kohana_Peeper {
-	
+abstract class Kohana_Peeper {
+		
 	/**
-	 * @var  boolean  Has [Peeper::init] been called?
+	 * @var  Kohana_Peeper instances
 	 */
-	protected static $_init = FALSE;
-	
-	protected static $_writed = FALSE;
+	private static $_instances = array();
 	
 	/**
-	 * @var  string  Peeper init time
+	 * @var  boolean  Kohana_Peeper::init was called?
 	 */
-	public static $start = '';
+	protected $_init = FALSE;
 	
 	/**
-	 * @var  array  Array with dumped vars
+	 * @var  boolean  shutdown_handler called?
+	 */
+	protected $_writed = FALSE;
+
+	/**
+	 * @var  Kohana_Config
+	 */
+	protected static $_config = NULL;
+
+	/**
+	 * @var  array  Array with dumped vars. Array is shared between all instances!
 	 */
 	public static $debug = array();
 	
@@ -30,22 +38,52 @@ class Kohana_Peeper {
 	
 	/**
 	 * Initialize Peeper (register shutdown handler).
+	 * Peeper::init can be called only once.
 	 * 
-	 * @return	void
+	 * 		Peeper::instance('apc')->init();
+	 * 
+	 * @param	string	the name of the peeper driver to use
+	 * @return	Kohana_Peeper
 	 */
-	public static function init()
+	public function init()
 	{
-		if (Peeper::$_init)
-		{
-			return;
-		}
-				
-		// register Peeper shutdown handler
-		register_shutdown_function(array('Peeper', 'shutdown_handler'));
-		
-		Peeper::$_init = TRUE;
-	} // eo init
+		if ($this->_init === FALSE)
+		{		
+			// register Peeper shutdown handler
+			register_shutdown_function(array($this, 'shutdown_handler'));
 			
+			$this->_init = TRUE;
+		}
+		
+		return $this;
+	} // eo init
+	
+	/**
+	 * Creates a singleton of a Peeper driver.
+	 * 
+	 * @param	string	the name of the peeper driver to use  
+	 * @return	Kohana_Peeper
+	 */
+	public static function instance($driver = NULL)
+	{
+		if (Peeper::$_config === NULL)
+		{
+			Peeper::$_config = Kohana::config('peeper');
+		}
+		 
+		$driver = $driver ?: Peeper::$_config['default_driver'];
+		
+		if (isset(self::$_instances[$driver]))
+		{ 
+			return self::$_instances[$driver];	
+		}
+		
+		$class = 'Peeper_'.ucfirst($driver); 
+		return self::$_instances[$driver] = new $class;
+	} // eo instance
+	
+	public function __construct() {} // eo __construct
+	
 	/**
 	 * See [Debug::dump].
 	 * 
@@ -313,25 +351,15 @@ class Kohana_Peeper {
 	 * 
 	 * @return	void
 	 */
-	public static function shutdown_handler()
+	public function shutdown_handler()
 	{
-		if (Peeper::$_writed)
-		{
-			return;	
-		}
-		
-		$config = Kohana::config('peeper');
-		
-		 
 		// Do not execute when not active or when it is request to Peeper controller
-		if ( ! Peeper::$_init OR in_array(Request::$initial->controller(), $config['excluded_controllers']))
+		if ($this->_writed OR 
+			! $this->_init OR 
+			in_array(Request::$initial->controller(), Peeper::$_config['excluded_controllers']))
 		{	
 			return;	
 		}
-		
-		// make delay
-		$delay = rand(50, 150);
-		usleep($delay);
 		
 		// collect data
 		$output = 
@@ -343,30 +371,21 @@ class Kohana_Peeper {
 			Peeper::get_included_files() +
 			Peeper::get_loaded_extensions();
 		
-		// request start
-		Peeper::$start = microtime();
-		list($msec, $sec) = explode(' ', Peeper::$start);
+		list($msec, $sec) = explode(' ', microtime());
 		
-		Peeper::$cache_dir = APPPATH.'cache/peeper/'.$_SERVER['REMOTE_ADDR'].'/'.$sec.'/';
-		
-		Peeper::create_cache_dir();
-		
-		try
-		{
-			file_put_contents(Peeper::$cache_dir.(string)(float)$msec, serialize($output), LOCK_EX);
-		}
-		catch (Exception $e)
-		{
-			
-		}
-		
-		Peeper::$_writed = TRUE;
-	} // eo shutdown
+		return
+			array(
+				'msec'	=> (float) $msec,
+				'sec'	=> (int) $sec,
+				'output'=> $output,
+				'user'	=> $_SERVER['REMOTE_ADDR']
+			);
+	} // eo shutdown_handler
 	
-	public static function error($e)
-	{
-		if (Peeper::$_writed)
-		{
+	public function error(Exception $e)
+	{ 
+		if ($this->_writed)
+		{ 
 			return;	
 		}
 		 
@@ -452,39 +471,73 @@ class Kohana_Peeper {
 			
 		}
 		
-		// request start
-		Peeper::$start = microtime();
-		list($msec, $sec) = explode(' ', Peeper::$start);
+		list($msec, $sec) = explode(' ', microtime());
 		
-		Peeper::$cache_dir = APPPATH.'cache/peeper/'.$_SERVER['REMOTE_ADDR'].'/'.$sec.'/';
-		
-		Peeper::create_cache_dir();
-		
-		try
-		{
-			list($msec, $sec) = explode(' ', Peeper::$start);
-						
-			file_put_contents(Peeper::$cache_dir.(string)(float)$msec, serialize($output), LOCK_EX);
-		}
-		catch (Exception $e)
-		{
-			
-		}
-		
-		Peeper::$_writed = TRUE;
-	}
+		return
+			array(
+				'msec'	=> (float) $msec,
+				'sec'	=> (int) $sec,
+				'output'=> $output,
+				'user'	=> $_SERVER['REMOTE_ADDR']
+			);
+	} // eo error
 	
-	public static function create_cache_dir()
+	public function suck_milk() {} // eo suckMilk
+	
+	/**
+	 * Render html.
+	 * 
+	 * @param	array
+	 * @return	void
+	 */
+	public function render(array $result)
 	{
-		if ( ! is_dir(Peeper::$cache_dir))
+		$output = '';
+		
+		foreach ($result as $item)
 		{
-			// Create the cache directory
-			mkdir(Peeper::$cache_dir, 0777, TRUE);
-
-			// Set permissions (must be manually set to fix umask issues)
-			chmod(Peeper::$cache_dir, 0777);
+			extract($item);
+							
+			$view = View::factory('peeper/request', $request + array('globals' => $globals));
+			
+			$view->items = array();
+			
+			// Debug panel (displays dumped variables)
+			if ($debug)
+			{
+				$view->items['debug'] = View::factory('peeper/_debug', array('debug' => $debug));
+			}
+			
+			// Response is rendered if there was an error or if it's a ajax request
+			if ($request['response'] !== NULL AND ($request['ajax'] OR $request['error']))
+			{
+				$view->items['response'] = 
+					View::factory(
+						'peeper/_response', 
+						array(
+							'error' => $request['error'], 
+							'response' => $request['response'], 
+							'content_type' => $request['content_type']
+						)
+					);
+			}
+			
+			// Profiler
+			$view->items['profiler'] = View::factory('peeper/_profiler', $profiler);
+			// Globals
+			$view->items['globals'] = View::factory('peeper/_globals', array('vars' => $globals));	
+			// Loaded modules
+			$view->items['modules'] = View::factory('peeper/_modules', array('modules' => $modules));
+			// Included files
+			$view->items['included_files'] = View::factory('peeper/_included_files', array('files' => $included_files));
+			// Loaded extensions
+			$view->items['loaded_extensions'] = View::factory('peeper/_loaded_extensions', array('files' => $loaded_extensions));
+						
+			$output .= $view;
 		}
-	}
+		
+		return $output;
+	} // eo render
 	
 } // eo Peeper
 
