@@ -1,130 +1,124 @@
-/* clear all*/ 
-html, body, div, span, applet, object, iframe,
-h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-a, abbr, acronym, address, big, cite, code,
-del, dfn, em, font, img, ins, kbd, q, s, samp,
-small, strike, sub, sup, tt, var,
-dl, dt, dd, ol, ul, li,
-fieldset, form, label, legend,
-table, caption, tbody, tfoot, thead, tr, th, td {
 
+html.peeper-standalone,
+.peeper-non-standalone #peeper{ font-size: 100%; }
 
-	margin: 0;
-	padding: 0;
-	border: 0;
-	outline: 0;
-	font-weight: inherit;
-	font-style: inherit;
-	font-size: 100%;
-	font-family: inherit;
-	vertical-align: baseline; }
+.peeper-standalone body { margin: 0 10px 10px 10px; background: #262621; font-family: Verdana; font-size: 14px; }
+
+.peeper-non-standalone #peeper { position: fixed; left: 0; bottom: 0; width: 100%; height: 200px; background: #262621; font-family: Verdana; font-size: 14px; }
+
+/* PEEPER LOGO */
+/* ------------------ */
+#peeper-logo { color: #FFFFFF; left: 20px; position: absolute; text-transform: uppercase; top: 12px; z-index: 1000; width: 126px; height: 15px; }
+	.peeper-standalone #peeper-logo { top: -8px; }
+	#peeper-logo a { background: url(../images/logo.png) no-repeat; display: block; width: 126px; height: 15px; }
+		#peeper-logo span { display: none; }
 	
-body { margin: 0 10px 10px 10px; background: #262621; font-family: Verdana; font-size: 90%; }
 
-#peeper { color: #FFFFFF; left: 20px; position: absolute; text-transform: uppercase; top: 12px; z-index: 1000; width: 126px; height: 15px; }
-	#peeper a { background: url(../images/logo.png) no-repeat; display: block; width: 126px; height: 15px; }
-		#peeper span { display: none; }
-	/*#peeper .peeper { color: #E6006B; font-weight: bold; }	
-	#peeper .ko3 { color: #AADA5F; font-weight: bold; }*/
+#peeper .footer { background: #262621; width: 100%; text-align: right; position: fixed; padding: 5px 0; bottom: 0px; } 
+	#peeper .copyrights { color: #73735e; font-size: 70%; padding: 0px 5px; }
 
-#copyrights { background: #262621; width: 100%; text-align: right; position: fixed; z-index: 1000; padding: 5px; bottom: 0px; right: 5px; color: #73735e; font-size: 70%; }
+#peeper .toolbar { margin: 10px 0px; text-align: right; }
+	#peeper .peeper-stop { cursor: pointer; background: #71811C; border-radius: 6px 6px 6px 6px; color: #DCE7C2; font-size: 70%; padding: 2px 4px; text-transform: uppercase; }
+	#peeper .peeper-up,
+	#peeper .peeper-down { width: 20px; cursor: pointer; background: #71811C; border-radius: 6px 6px 6px 6px; color: #DCE7C2; font-size: 70%; padding: 2px 4px; text-transform: uppercase; }
+	#peeper .toolbar a { margin-right: 5px; }
+	#peeper .peeper-up { margin-right: 2px; }
 
-#toolbar { margin: 10px 0px; text-align: right; }
-	#peeper-stop { cursor: pointer; background: #71811C; border-radius: 6px 6px 6px 6px; color: #DCE7C2; font-size: 70%; padding: 2px 4px; text-transform: uppercase; }
-
-#result { margin-bottom: 30px; }
-.request { background: #fff; border-radius: 8px; margin-top: 10px; }
+#peeper .result { margin-bottom: 30px; }
+.peeper-non-standalone .result { overflow: auto; height: 140px; }
+#peeper .request { background: #fff; border-radius: 8px; margin-top: 10px; }
 	/* REQUEST BAR/HEADER */
 	/* ------------------ */
 	/* normal request (green) */
-	.request-title { position: relative; cursor: pointer; font-size: 70%; margin-bottom: 0; color: #19480D; font-weight: normal; background: #AFD36F; border: 3px solid #83C151; border-radius: 8px 8px 8px 8px; padding: 2px 4px; }
+	#peeper .request-title { position: relative; cursor: pointer; font-size: 70%; margin-bottom: 0; color: #19480D; font-weight: normal; background: #AFD36F; border: 3px solid #83C151; border-radius: 8px 8px 8px 8px; padding: 2px 4px; }
 	/* stripes */
-	.request:nth-child(2n) .request-title { background: #C4DC92; }	
+	#peeper .request:nth-child(2n) .request-title { background: #C4DC92; }	
 		
 	/* ajax request (blue) */
-	.request.ajax .request-title { background: #91C1DE; border-color: #497EBE; }
+	#peeper .request.ajax .request-title { background: #91C1DE; border-color: #497EBE; }
 	/* stripes for ajax request */
-	.request.ajax:nth-child(2n) .request-title { background: #7AB1D3; }
+	#peeper .request.ajax:nth-child(2n) .request-title { background: #7AB1D3; }
 		/* "AJAX" label */
-		.request-title .ajax { background: #fff; border-radius: 4px; padding: 2px; font-size: 90%; text-transform: uppercase; color: #000; }
+		#peeper .request-title .ajax { background: #fff; border-radius: 4px; padding: 2px; font-size: 90%; text-transform: uppercase; color: #000; }
 		/* request method (post, get, etc.) and status (200, 404, 500 etc.) */
-		.request-title .method, .request-title .status { opacity: 0.6; }
+		#peeper .request-title .method, .request-title .status { opacity: 0.6; }
 	
 	/* error request (red) */
-	.request.error .request-title { color: #F5F2F4; background: #CF4686 !important; border-color: #B01E53; }
+	#peeper .request.error .request-title { color: #F5F2F4; background: #CF4686 !important; border-color: #B01E53; }
 	
 		/* request redirection */
-		.request-title span.redirect { opacity: 0.6; color: #000; font-style: italic; margin-left: 5px; }
+		#peeper .request-title span.redirect { opacity: 0.6; color: #000; font-style: italic; margin-left: 5px; }
 		
-	.request-items { display: none; padding: 5px; }
-		.request-item {}
-			.item-container { background: #CFE1F4; }
-				.item-header {cursor: pointer; border-bottom: 1px solid #99BBD0; margin-bottom: 0; color: #084E73; font-size: 60%; font-weight: normal; letter-spacing: 2px; margin-top: 0; padding: 5px; text-transform: uppercase; }							
-				.item-items { padding: 0 5px 5px 5px; background: #E6EFF5; border-top: 1px solid #F4F8FB; }
+	#peeper .request-items { display: none; padding: 5px; }
+		#peeper .request-item {}
+			#peeper .item-container { background: #CFE1F4; }
+				#peeper .item-header {cursor: pointer; border-bottom: 1px solid #99BBD0; margin-bottom: 0; color: #084E73; font-size: 60%; font-weight: normal; letter-spacing: 2px; margin-top: 0; padding: 5px; text-transform: uppercase; }							
+				#peeper .item-items { padding: 0 5px 5px 5px; background: #E6EFF5; border-top: 1px solid #F4F8FB; }
 					
-					table { width: 100%; border-collapse: collapse; }
-					th, td { text-align: left; font-size: 70%; padding: 4px 4px; }
-					tr.table-header { background: #8DBFD6; }
-					table.stripes tr:nth-child(2n) { background: #F0F5F9; }
+					#peeper table { width: 100%; border-collapse: collapse; }
+					#peeper th, #peeper td { text-align: left; font-size: 70%; padding: 4px 4px; }
+					#peeper tr.table-header { background: #8DBFD6; }
+					#peeper table.stripes tr:nth-child(2n) { background: #F0F5F9; }
 					
-					#kohana-profiler table.profiler { margin-top: 5px; }								
-						#kohana-profiler .group th { font-size: 70%; padding: 4px; }
-						#kohana-profiler .group td { text-align: right; }
-							#kohana-profiler .group .time,
-							#kohana-profiler .group .memory { font-size: 80%; background: #D6E9F4; border-radius: 4px; margin-right: 5px; padding: 2px 4px; }
-						#kohana-profiler .headers { background: #CCD9E0; }
-							#kohana-profiler .headers th.min { background: #B3D282; }
-							#kohana-profiler .headers th.max { background: #D9949D; }
-							#kohana-profiler .headers th.name { width: 40%; }
-							#kohana-profiler .headers th.average { background: #D6D163; }
-							#kohana-profiler .headers th.total {}
-						#kohana-profiler .mark {  }										
-							#kohana-profiler .mark td.min { background: #CBE3A6; }
-							#kohana-profiler .mark td.max { background: #E8BCC2; }
-							#kohana-profiler .mark th.name { width: 40%; font-weight: normal; border-bottom: 1px solid #B8CFE6; }
-							#kohana-profiler .mark td.average { background: #E8E589; }
-							#kohana-profiler .mark td.total {  }
+					#peeper .module-kohana-profiler table.profiler { margin-top: 5px; }								
+						#peeper .module-kohana-profiler .group th { font-size: 70%; padding: 4px; }
+						#peeper .module-kohana-profiler .group td { text-align: right; }
+							#peeper .module-kohana-profiler .group .time,
+							#peeper .module-kohana-profiler .group .memory { font-size: 80%; background: #D6E9F4; border-radius: 4px; margin-right: 5px; padding: 2px 4px; }
+						#peeper .module-kohana-profiler .headers { background: #CCD9E0; }
+							#peeper .module-kohana-profiler .headers th.min { background: #B3D282; }
+							#peeper .module-kohana-profiler .headers th.max { background: #D9949D; }
+							#peeper .module-kohana-profiler .headers th.name { width: 40%; }
+							#peeper .module-kohana-profiler .headers th.average { background: #D6D163; }
+							#module-kohana-profiler .headers th.total {}
+						#peeper .module-kohana-profiler .mark {  }										
+							#peeper .module-kohana-profiler .mark td.min { background: #CBE3A6; }
+							#peeper .module-kohana-profiler .mark td.max { background: #E8BCC2; }
+							#peeper .module-kohana-profiler .mark th.name { width: 40%; font-weight: normal; border-bottom: 1px solid #B8CFE6; }
+							#peeper .module-kohana-profiler .mark td.average { background: #E8E589; }
+							#peeper .module-kohana-profiler .mark td.total {  }
 							
-							#kohana-profiler .mark.memory td.min { border-bottom: 1px solid #B3D282; }
-							#kohana-profiler .mark.memory td.max { border-bottom: 1px solid #D9949D; }
-							#kohana-profiler .mark.memory td.average { border-bottom: 1px solid #D6D163; }
-							#kohana-profiler .mark.memory td.total { border-bottom: 1px solid #B8CFE6; }
+							#peeper .module-kohana-profiler .mark.memory td.min { border-bottom: 1px solid #B3D282; }
+							#peeper .module-kohana-profiler .mark.memory td.max { border-bottom: 1px solid #D9949D; }
+							#peeper .module-kohana-profiler .mark.memory td.average { border-bottom: 1px solid #D6D163; }
+							#peeper .module-kohana-profiler .mark.memory td.total { border-bottom: 1px solid #B8CFE6; }
 					
-					#debug th { width: 20%; }
+					#peeper .module-debug th { width: 20%; }
 					
-					#globals table { margin-top: 10px; }
+					#peeper .module-globals table { margin-top: 10px; }
 					
-					.ajax-response .application-json,
-					.ajax-response .text-html { width: 40%; }									
-					.ajax-response .application-json + td,
-					.ajax-response .text-html + td { width: 60%; }
+					#peeper .ajax-response .application-json,
+					#peeper .ajax-response .text-html { width: 40%; }									
+					#peeper .ajax-response .application-json + td,
+					#peeper .ajax-response .text-html + td { width: 60%; }
+					#peeper .ajax-response td + td * { font-size: 104%; }
 					
-					.json-tree ul,
-					.xml-tree ul { list-style: none; }
-						.json-tree ul ul,
-						.xml-tree ul ul { padding-left: 20px; display: none; }
-							.json-tree .key { font-weight: bold; padding-right: 10px; }
-							.json-tree a.key code { color: #000; } 
-							.json-tree pre.value { display: inline; }
+					#peeper .json-tree ul,
+					#peeper .xml-tree ul { list-style: none; }
+						#peeper .json-tree ul ul,
+						#peeper .xml-tree ul ul { padding-left: 20px; display: none; }
+							#peeper .json-tree .key { font-weight: bold; padding-right: 10px; }
+							#peeper .json-tree a.key code { color: #000; } 
+							#peeper .json-tree pre.value { display: inline; }
 							
-							.json-tree .string { color: #8C6600; }
-							.json-tree .expand,
-							.xml-tree .expand { margin-right: 3px; cursor: pointer; }
-							.json-tree .key pre.number { font-weight: bold; color: #497EBE; }
+							#peeper .json-tree .string { color: #8C6600; }
+							#peeper .json-tree .expand,
+							#peeper .xml-tree .expand { margin-right: 3px; cursor: pointer; }
+							#peeper .json-tree .key pre.number { font-weight: bold; color: #497EBE; }
 							
-					.xml-tree .tag-name { color: #1C5BB3; }
-					.xml-tree .attr-name { color: #000; }
-					.xml-tree .attr-value { color: #DD3D3D; }
+					#peeper .xml-tree .tag-name { color: #1C5BB3; }
+					#peeper .xml-tree .attr-name { color: #000; }
+					#peeper .xml-tree .attr-value { color: #DD3D3D; }
 
 /* test query button displayed next to database queries */					
-.test-query { cursor: pointer; text-decoration: none; color: #000; letter-spacing: 1px; background: #fff; border-radius: 6px; padding: 2px 4px; right: 4px; text-transform: uppercase; font-size: 80%; margin-right: 5px; }
-.test-query:hover { background: #7AB1D3; color: #fff; }
-	.test-query span { display: none; }
+#peeper .test-query { cursor: pointer; text-decoration: none; color: #000; letter-spacing: 1px; background: #fff; border-radius: 6px; padding: 2px 4px; right: 4px; text-transform: uppercase; font-size: 80%; margin-right: 5px; }
+#peeper .test-query:hover { background: #7AB1D3; color: #fff; }
+	#peeper .test-query span { display: none; }
 						
-					.db-result th { font-size: 70%; padding: 4px; text-align: left; background: #CCD9E0; }
+					#peeper .db-result th { font-size: 70%; padding: 4px; text-align: left; background: #CCD9E0; }
 					
 /* test request button displayed on the request-title-bar */
-.test-request { cursor: pointer; text-decoration: none; color: #000; letter-spacing: 1px; background: #fff; 
+#peeper .test-request { cursor: pointer; text-decoration: none; color: #000; letter-spacing: 1px; background: #fff; 
 				border-radius: 6px; padding: 2px 4px; right: 4px; text-transform: uppercase; font-size: 80%; 
 				margin-right: 5px; position: absolute; right: 0px; top: 2px; z-index: 20; }
-.test-request:hover { background: #7AB1D3; color: #fff; }
+#peeper .test-request:hover { background: #7AB1D3; color: #fff; }

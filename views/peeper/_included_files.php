@@ -1,4 +1,4 @@
-<div id='included-files' class='item-container'>
+<div class='module-included-files item-container'>
 	<h1 class='item-header'><?php echo __('Included files') ?> (<strong><?php echo count($files) ?></strong>)</h1>
 	<div class='modules item-items' style='display: none'>
 		<table class='stripes'>

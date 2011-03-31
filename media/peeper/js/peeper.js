@@ -3,16 +3,20 @@
  * 
  * @author		Adam Sauveur <http://github.com/adam-sauveur>
  * @copyright	(c) 2012 Adam Sauveur <adam.sauveur@gmail.com> 
- * @singleton
  */
 var Peeper = Class.extend({
 	/**
 	 * Contructor.
 	 */
-	init: function(){
+	init: function(url){
 		
 		var me = this;
 		
+		/**
+		 * @var  bool  Peeper are rendered and ready to suck milk?
+		 */
+		this.rendered = false;
+				
 		/**
 		 * @var  object
 		 */
@@ -34,14 +38,9 @@ var Peeper = Class.extend({
 		this.requestsPerPage = 50;
 		
 		/**
-		 * @var  string  URL to Peeper controller action.
-		 */
-		this.milkURL = '';
-		
-		/**
-		 * @var  string  URL to Peeper database query tester.
-		 */
-		this.testQueryURL = '';
+		 * @var  string  Url to Peeper controller.
+		 */		
+		this.URL = url;
 		
 		/**
 		 * @var  boolean  Stop receiving logs.
@@ -53,21 +52,71 @@ var Peeper = Class.extend({
 		 */
 		this.lastId = 0;
 		
-		// on DOM load...
+		this.standalone = typeof PEEPER_STANDALONE == "undefined" ? false : PEEPER_STANDALONE;
+		this.position = 2;
+		
+		/**
+		 * @var  jQuery  Peeper container wrapper by jQuery.
+		 */
+		this.$peeper = null;
+		
+		this.render();
+	}, // eo init
+	
+	render: function(){
+		
+		var me = this;
+		
+		// jQuery not loaded yet? wait next 100 miliseconds
+		if (typeof jQuery == "undefined"){
+						
+			setTimeout(function(){ me.render(); }, 100);			
+			return false;
+		
+		} 
+		
+		// Add styles
+		var head = document.getElementsByTagName('head')[0],			
+				css = [
+					'redmond/jquery-ui-1.8.11.custom.css',
+					'peeper.css'
+				],
+				node;
+				
+		for (var i = 0; i < css.length; ++i){
+			
+			node = document.createElement('link');
+			node.type = 'text/css';
+			node.rel = 'stylesheet';
+			node.href = me.URL + 'peeper/media/css/' + css[i];
+			node.media = 'screen';
+			head.appendChild(node);
+			
+		}
+		
+		// jQuery is loaded, now we can create UI (of course after DOM is loaded)
 		$(function(){
+			
 			// create toolbar and logs container
 			var html =
-				'<h1 id="peeper"><a><span class="ko3">KO3</span><span class="peeper">Peeper</span></a></h1>' + 
-				'<div id="toolbar">' +
-				'	<a id="peeper-stop">Stop</a>' +
-				'</div>' +
-				'<div id="result"></div>' +
-				'<div id="copyrights">developed by sauveur</div>';
-				
-			document.getElementsByTagName('body')[0].innerHTML = html;
+				'<div id="peeper">' +
+				'	<h1 id="peeper-logo"><a><span class="ko3">KO3</span><span class="peeper">Peeper</span></a></h1>' + 
+				'	<div class="toolbar">' +
+				'		<a class="peeper-stop">Stop</a>' +
+				(me.standalone === false ? '<a class="peeper-up">up</a><a class="peeper-down">down</a>' : '') +
+				'	</div>' +
+				'	<div class="result"></div>' +
+				'	<div class="footer"><span class="copyrights">developed by sauveur</span></div>' +
+				'</div>';
+			
+			document.getElementsByTagName('html')[0].className += ' ' + (me.standalone ? 'peeper-standalone' : 'peeper-non-standalone');
+			
+			$('body').append(html);
+			
+			me.$peeper = $('#peeper');
 			
 			// bind actions
-			$('#peeper-stop').click(function(){
+			$('.peeper-stop', me.$peeper).click(function(){
 				;
 				if (me.stopMilk == false){
 					me.stop();
@@ -77,8 +126,55 @@ var Peeper = Class.extend({
 					this.innerHTML = 'Stop';
 				}
 			});
+			
+			$('.peeper-up', me.$peeper).click(function(){
+				
+				if (me.position == 1){
+					
+					me.position = 2;
+					
+					me.$peeper.css('bottom', '0px');
+					$('.footer', me.$peeper).css('bottom', '0px');
+					
+					return;
+				}
+				
+				if (me.position == 2){
+					
+					me.position = 3;
+					
+					me.$peeper.css('height', '400px');
+					$('.result', me.$peeper).css('height', '330px');
+				}
+				
+			});
+			
+			$('.peeper-down', me.$peeper).click(function(){
+				
+				if (me.position == 3){
+					
+					me.position = 2;
+					
+					me.$peeper.css('height', '200px');
+					$('.result', me.$peeper).css('height', '140px');
+					
+					return;
+				}
+				
+				if (me.position == 2){
+					
+					me.position = 1;
+					
+					me.$peeper.css('bottom', '-160px');
+					$('.footer', me.$peeper).css('bottom', '-100px');
+				}
+				
+			});
+			
+			me.rendered = true;
 		});
-	}, // eo init
+		
+	}, // eo render	
 	/**
 	 * Generates unique id.
 	 * 
@@ -101,27 +197,9 @@ var Peeper = Class.extend({
 		return this;
 	}, // eo addRequest
 	/**
-	 * Sets URL to Peeper controller action.
+	 * Sets number of logs, to display on the page.
 	 * 
-	 * @return  this
-	 * @chainable
-	 */
-	setMilkURL: function(url){
-		this.milkURL = url; 		
-		return this;
-	}, // eo setMilkURL
-	/**
-	 * Sets URL to Peepers database query tester.
-	 * 
-	 * @return  this
-	 * @chainable
-	 */
-	setTestQueryURL: function(url){
-		this.testQueryURL = url;		
-		return this;
-	}, // eo setTestQueryURL
-	/**
-	 * Sets number of logs per page.
+	 * 		Peeper.setLogsNumber(50);
 	 * 
 	 * @return  this
 	 * @chainable
@@ -161,12 +239,18 @@ var Peeper = Class.extend({
 	 * @chainable
 	 */
 	suckMilk: function(){
-		
+				
 		var me = this;
+		
+		// Wait until Peeper will be rendered.
+		if (this.rendered === false){
+			setTimeout(function(){ me.suckMilk(); }, 150);
+			return false;
+		}
 		
 		this.ajaxRequest = 
 			$.ajax({
-				url: this.milkURL, 
+				url: this.URL + 'peeper/suckMilk', 
 				success: function(data){ 
 					me.processResult(data);
 				}
@@ -209,15 +293,17 @@ var Peeper = Class.extend({
 	 */
 	insert: function(){
 		
-		var $result = $('#result');
+		var me = this;
+		
+		var $result = $('.result', me.$peeper);
 			
 		$result.prepend(this.$data);
 		
-		var requests = $('#result > .request').length;
+		var requests = $('.result > .request', me.$peeper).length;
 		
 		if (requests > this.requestsPerPage){
 		
-			var diff = requests - this.requestsPerPage,					
+			var diff = requests - this.requestsPerPage,
 				result = $result.get(0);
 			
 			for (var i = 0; i < diff; i++){
@@ -293,14 +379,10 @@ var Peeper = Class.extend({
 					post = true;
 				}
 			}
-			
+			console.log(req.url);
 			if (req.ajax){
 				$.ajax({
-					beforeSend: function(jqXHR, settings){
-						console.log(jqXHR);
-						console.log(settings);
-					},
-					url: req.url,
+					url: me.URL + req.url,
 					type: post ? 'POST' : 'GET',
 					data: post ? req.post : req.get
 				});
@@ -323,7 +405,7 @@ var Peeper = Class.extend({
 			$('body').append($modal);
 			
 			$.ajax({
-				url: me.testQueryURL,
+				url: me.URL + 'peeper/testquery',
 				type: 'POST',
 				data: {
 					query: query
@@ -579,5 +661,3 @@ var Peeper = Class.extend({
 	} // eo jsonTree
 	
 });
-			
-Peeper = new Peeper();

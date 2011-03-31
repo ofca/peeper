@@ -3,7 +3,7 @@ $group_cols       = array('min', 'max', 'average', 'total');
 $application_cols = array('min', 'max', 'average', 'current');
 ?>
 
-<div id='kohana-profiler' class='item-container'>
+<div class='module-kohana-profiler item-container'>
 	<h1 class='item-header'>Profiler</h1>
 	<div class='profilers item-items'>
 	<?php foreach ($groups as $group => $benchmarks): ?>
