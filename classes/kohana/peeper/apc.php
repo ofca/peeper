@@ -41,7 +41,7 @@ class Kohana_Peeper_Apc extends Peeper {
 		usleep($delay);
 		
 		// Save data to APC cache
-		apc_store('peeper-'.md5($delay.$msec.$id), $output, 3600);
+		apc_store('peeper-'.md5($delay.$msec.$user), $output, 3600);
 	} // eo shutdown_handler
 	
 	/**

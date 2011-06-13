@@ -3,6 +3,10 @@
 return array(
 	/**
 	 * Default driver used to store logs.
+	 * 
+	 * Available drivers:
+	 * - File
+	 * - APC
 	 */
 	'default_driver'	=> 'apc',
 	/**
@@ -10,7 +14,7 @@ return array(
 	 */
 	'excluded_controllers' => array(		
 		'peeper',	// do not remove this!
-		'mediaserver' 
+		'media' 
 	),
 	/**
 	 * How many logs to display?

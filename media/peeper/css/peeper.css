@@ -110,7 +110,7 @@ html.peeper-standalone,
 					#peeper .xml-tree .attr-name { color: #000; }
 					#peeper .xml-tree .attr-value { color: #DD3D3D; }
 
-/* test query button displayed next to database queries */					
+/* test-query-button displayed next to database queries */					
 #peeper .test-query { cursor: pointer; text-decoration: none; color: #000; letter-spacing: 1px; background: #fff; border-radius: 6px; padding: 2px 4px; right: 4px; text-transform: uppercase; font-size: 80%; margin-right: 5px; }
 #peeper .test-query:hover { background: #7AB1D3; color: #fff; }
 	#peeper .test-query span { display: none; }
